@@ -1,0 +1,260 @@
+@extends('layouts.app')
+@section('title', 'All Tasks')
+
+@section('content')
+<style>
+    .btn-outline-warning.custom-hover:hover {
+        background-color: #66fdee !important;
+        /* Your desired hover color */
+        color: #000;
+        /* Text color on hover */
+        border-color: #4d4b44 !important;
+    }
+
+    a.btn.rounded-pill.px-4.shadow-sm.add-btn:hover {
+        background-color: #6bf9f0;
+        color: black;
+    }
+
+    a.btn.rounded-pill.px-4.shadow-sm.add-btn {
+        background-color: black;
+        color: white;
+        border: 2px soild red;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545 !important;
+        color: #fff !important;
+        border-color: #dc3545 !important;
+    }
+</style>
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+<div class="container mt-2">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary">Task List</h4>
+        <div>
+            @if(in_array(auth()->user()->role, ['team_leader', 'manager','employer']))
+            <a href="{{ route('tasks.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
+                <i class="bi bi-plus-circle me-2"></i>Create Tasks
+            </a>
+            <a href="{{ route('tasks.trashed') }}" class="btn btn-outline-danger btn-sm rounded-pill">
+                <i class="bi bi-trash3-fill"></i>Trashed Tasks
+            </a>
+            @endif
+
+        </div>
+    </div>
+
+
+
+
+    <!-- Toast Messages -->
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        @foreach (['success', 'error', 'info', 'warning'] as $msg)
+        @if (session($msg))
+        <div class="toast show text-white bg-{{ $msg == 'error' ? 'danger' : $msg }}" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    {{ session($msg) }}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        @endif
+        @endforeach
+
+        @if ($errors->any())
+        <div class="toast show text-white bg-danger" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        @endif
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table id="salarySlipTable" class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sr. No</th>
+                        <th>Title</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Start Date</th>
+                        <th>Due Date</th>
+                        <th>Assigned To</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($tasks as $task)
+                    @php
+                    $assignedUsers = $task->assigned_to; // No json_decode needed
+                    @endphp
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $task->title }}</td>
+                        <td>{{ ucfirst($task->priority) }}</td>
+                        <td>{{ ucfirst($task->status) }}</td>
+                        <td>{{ \Carbon\Carbon::parse($task->start_date)->format('d M Y, h:i A') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($task->due_date)->format('d M Y, h:i A') }}</td>
+
+                        {{-- Assigned Users --}}
+                        <td>
+                            @foreach($assignedUsers as $index => $userId)
+                            @php $user = \App\Models\User::find($userId); @endphp
+                            @if($user)
+                            {{ $user->name }}{{ $index !== count($assignedUsers) - 1 ? ',' : '' }}<br>
+                            @endif
+                            @endforeach
+                        </td>
+
+                        <td class="text-nowrap">
+                            <div class="d-flex gap-2">
+                                {{-- Show button only if the logged-in employee is assigned --}}
+                                @if(auth()->user()->role === 'employee' || in_array(auth()->id(), $assignedUsers))
+                                <button
+                                    class="btn btn-sm btn-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#submitTaskModal"
+                                    data-task-id="{{ $task->id }}"
+                                    data-task-title="{{ $task->title }}"
+                                    data-task-status="{{ $task->status }}">
+                                    <i class="bi bi-send-check"></i> Submit Task
+                                </button>
+                                @endif
+
+                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                                    <i class="bi bi-chat-dots-fill"></i> View
+                                </a>
+
+                                @if(auth()->user()->id === $task->created_by)
+                                <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+
+                                <a href="{{ route('tasks.reschedule.form', $task->id) }}" class="btn btn-sm btn-success d-flex align-items-center gap-1">
+                                    <i class="bi bi-clock-history"></i> Reschedule
+                                </a>
+
+                                <form action="{{ route('tasks.softDelete', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash3"></i> Delete
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforeach
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Task Modal -->
+<div class="modal fade" id="submitTaskModal" tabindex="-1" aria-labelledby="submitTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="submitTaskForm" method="POST" action="{{ route('tasks.submit') }}" enctype="multipart/form-data">
+            @csrf
+            <input type="hidden" name="task_id" id="modalTaskId">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="submitTaskModalLabel">Submit Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to submit the task: <strong id="taskTitle"></strong>?</p>
+
+                    <!-- Progress Update -->
+                    <div class="mb-3">
+                        <label for="progress" class="form-label">Progress / Work Details</label>
+                        <textarea name="progress" id="progress" class="form-control" rows="4" required>{{ old('progress') }}</textarea>
+                    </div>
+
+                    <!-- Upload Completed Work -->
+                    <div class="mb-3">
+                        <label for="submission_file" class="form-label">Upload File (Optional)</label>
+                        <input type="file" name="submission_file" id="submission_file" class="form-control">
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-control" required>
+                            <option value="">-- Select Status --</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Submitted">Submitted</option>
+                            <!-- <option value="Completed">Completed</option> -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Submit Task</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    const submitTaskModal = document.getElementById('submitTaskModal');
+    submitTaskModal.addEventListener('show.bs.modal', function(event) {
+
+        const button = event.relatedTarget;
+        const taskId = button.getAttribute('data-task-id');
+        const taskTitle = button.getAttribute('data-task-title');
+
+        document.getElementById('modalTaskId').value = taskId;
+        document.getElementById('taskTitle').textContent = taskTitle;
+    });
+</script>
+
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#salarySlipTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: ['excelHtml5'],
+            pageLength: 10
+        });
+    });
+</script>
+
+<!-- Bootstrap Icons CDN (Optional) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss toast after 5 seconds
+        setTimeout(() => {
+            let toast = new bootstrap.Toast('.toast');
+            toast.hide();
+        }, 7000); // Toast will disappear after 5 seconds
+    });
+</script>
+@endsection
