@@ -102,33 +102,22 @@
 </div>
 
 <script>
-    const autoGenerate = document.getElementById('auto_generate');
-    const pdfUpload = document.getElementById('pdf_upload_section');
-    const salary_field = document.getElementById('salary_field');
+const autoGenerate = document.getElementById('auto_generate');
+const salaryField = document.getElementById('salary_field');
+const pdfUpload = document.getElementById('pdf_upload_section');
 
-    autoGenerate.addEventListener('change', () => {
-        if (autoGenerate.checked) {
-            pdfUpload.style.display = 'none';
-        } else {
-            pdfUpload.style.display = 'block';
-        }
-    });
+function toggleAutoGenerate() {
+    if (autoGenerate.checked) {
+        salaryField.style.display = 'none';
+        pdfUpload.style.display = 'none';
+    } else {
+        salaryField.style.display = 'block';
+        pdfUpload.style.display = 'block';
+    }
+}
 
-    // Initialize on page load
-    window.addEventListener('load', () => {
-        if (autoGenerate.checked) {
-            pdfUpload.style.display = 'none';
-        } else {
-            salary_field.style.display = 'none';
-        }
-    });
-
-    autoGenerate.addEventListener('change', () => {
-        if (autoGenerate.checked) {
-            salary_field.style.display = 'block';
-        } else {
-            salary_field.style.display = 'none';
-        }
-    });
+autoGenerate.addEventListener('change', toggleAutoGenerate);
+window.addEventListener('load', toggleAutoGenerate);
 </script>
+
 @endsection
