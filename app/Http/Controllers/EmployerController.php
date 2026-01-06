@@ -7,7 +7,9 @@ use App\Models\Department;
 use App\Models\Designation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-
+use App\Models\Attendances;
+use Carbon\Carbon;
+use App\Models\EmployeeLeave;
 
 class EmployerController extends Controller
 {
@@ -203,11 +205,41 @@ class EmployerController extends Controller
         return redirect()->route('employer.employees.index')->with('success', 'Employee updated successfully.');
     }
 
-    public function show($id)
+   public function show($id)
     {
-        //$user = User::findOrFail($id);
         $user = User::with(['department', 'designation'])->findOrFail($id);
 
-        return view('employer.employees.show', compact('user'));
+        // Current month & year
+        $month = Carbon::now()->month;
+        $year  = Carbon::now()->year;
+
+        // Total days in current month
+        $totalDays = Carbon::now()->daysInMonth;
+
+        // Present days (attendance exists)
+        $presentDays = Attendances::where('employee_id', $id)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->whereNotNull('check_in')
+            ->count();
+
+        // Approved leave days
+        $leaveDays = EmployeeLeave::where('user_id', $id)
+            ->whereMonth('from_date', $month)
+            ->whereYear('from_date', $year)
+            ->where('status', 'approved')
+            ->count();
+
+        // Absent days (safe calculation)
+        $absentDays = max(0, $totalDays - ($presentDays + $leaveDays));
+
+        return view('employer.employees.show', compact(
+            'user',
+            'presentDays',
+            'leaveDays',
+            'absentDays',
+            'month',
+            'year'
+        ));
     }
 }
