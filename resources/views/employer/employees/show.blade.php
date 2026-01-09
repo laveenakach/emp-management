@@ -37,7 +37,8 @@
             </div>
 
             {{-- Details Table --}}
-            <table class="table table-bordered table-striped">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped mb-0">
                 <tr>
                     <th width="15%">Employee ID</th>
                     <td width="35%">{{ $user->empuniq_id }}</td>
@@ -81,6 +82,7 @@
                     <td>{{ $user->address }}</td>
                 </tr>
             </table>
+            </div>
         </div>
     </div>
 
