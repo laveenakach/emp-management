@@ -26,7 +26,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 <div class="container mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-primary">Employee List</h4>
         <div>
             @if(auth()->user()->role === 'employer')
@@ -36,6 +36,23 @@
             <a href="{{ route('employees.trashed') }}" class="btn btn-outline-danger btn-sm rounded-pill">
                 <i class="bi bi-trash3-fill"></i> Trashed Employee
             </a>
+            @endif
+        </div>
+    </div>
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary mb-0">Employee List</h4>
+
+        <div class="d-flex align-items-center gap-3">
+            @if(auth()->user()->role === 'employer')
+                <a href="{{ route('employer.employees.create') }}"
+                class="text-decoration-none text-dark">
+                    <i class="bi bi-plus-circle fs-5"></i>
+                </a>
+
+                <a href="{{ route('employees.trashed') }}"
+                class="text-decoration-none text-danger">
+                    <i class="bi bi-trash3-fill fs-5"></i>
+                </a>
             @endif
         </div>
     </div>
@@ -123,7 +140,8 @@
         $('#attendanceTable').DataTable({
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
-            pageLength: 10
+            pageLength: 10,
+            scrollX: true
         });
     });
 </script>

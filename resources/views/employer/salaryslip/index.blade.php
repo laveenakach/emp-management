@@ -60,7 +60,8 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="salarySlipTable" class="table table-hover table-bordered">
+            <div class="table-responsive">
+            <table id="salarySlipTable" class="table table-hover table-bordered nowrap" style="width:100%;">
                 <thead class="table-light">
                     <tr>
                         <th>Sr no</th>
@@ -97,7 +98,7 @@
 
                         </td>
                         <td>
-                            <div class="d-flex gap-2 flex-wrap">
+                            <div class="d-flex gap-2 align-items-center">
                                 <a href="{{ route('employer.salaryslips.edit', $slip->id) }}" class="btn btn-warning btn-sm">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
@@ -114,6 +115,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
@@ -131,7 +133,10 @@
         $('#salarySlipTable').DataTable({
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
-            pageLength: 10
+            pageLength: 10,
+            scrollX: true,
+            scrollY: true,
+           
         });
     });
 </script>

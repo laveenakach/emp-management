@@ -85,7 +85,7 @@
                                 <td>{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '-' }}</td>
                                 <td>{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '-' }}</td>
                                 <td>
-                                    <div class="d-flex gap-2 flex-wrap">
+                                    <div style="display: flex; gap: 5px;">
                                         <a href="{{ route('employer.attendance.edit', $attendance->id) }}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil-square"></i> Edit
                                         </a>
@@ -119,11 +119,12 @@
 <script>
     $(document).ready(function () {
         $('#attendanceTable').DataTable({
-            dom: 'Bfrtip',
-            buttons: ['excelHtml5'],
-            responsive: true,
-            pageLength: 10
-        });
+        dom: 'Bfrtip',
+        buttons: ['excelHtml5'],
+        responsive: false,
+        scrollX: true,
+        pageLength: 10
+    });
     });
 
     // Toast auto-hide

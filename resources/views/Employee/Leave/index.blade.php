@@ -60,7 +60,8 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="leaveTable" class="table table-hover table-bordered">
+            <div class="table-responsive">
+            <table id="leaveTable" class="table table-hover table-bordered nowrap" style="width:100%;">
                 <thead class="table-light">
                     <tr>
                         <th>Sr. No</th>
@@ -149,11 +150,11 @@
                                 </div>
                             </div>
                         </td>
-
                     </tr>
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
@@ -171,7 +172,9 @@
         $('#leaveTable').DataTable({
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
-            pageLength: 10
+            pageLength: 10,
+            scrollX: true,
+            scrollY: true,
         });
     });
 </script>

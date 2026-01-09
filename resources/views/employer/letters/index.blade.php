@@ -62,7 +62,8 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="lattersTable" class="table table-hover table-bordered">
+            <div class="table-responsive">
+            <table id="lattersTable" class="table table-hover table-bordered nowrap" style="width:100%;">
                 <thead class="table-light">
                     <tr>
                         <th>Sr no</th>
@@ -106,6 +107,7 @@
                     @endforeach
                 </tbody>
             </table>
+             </div>
         </div>
     </div>
 </div>
@@ -123,7 +125,9 @@
         $('#lattersTable').DataTable({
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
-            pageLength: 10
+            pageLength: 10,
+            scrollX: true,
+            scrollY: true,
         });
     });
 </script>

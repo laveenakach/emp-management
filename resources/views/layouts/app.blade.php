@@ -45,18 +45,33 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar {
-                position: absolute;
-                z-index: 1000;
-                width: 250px;
-                left: -250px;
-                transition: left 0.3s;
-            }
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        min-height: 100vh;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
 
-            .sidebar.active {
-                left: 0;
-            }
-        }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 1040;
+        display: none;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
 
         main {
             min-height: 100vh;
@@ -67,6 +82,8 @@
 </head>
 
 <body>
+
+<div id="sidebarOverlay" class="sidebar-overlay d-md-none"></div>
 
     <!-- Navbar for mobile toggle -->
     <nav class="navbar navbar-light bg-light d-md-none">
@@ -107,13 +124,25 @@
 
 
     <!-- Sidebar Toggle Script -->
-    <!-- <script>
-    const toggleBtn = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-    });
-</script> -->
+    <script>
+const toggleBtn = document.getElementById('sidebarToggle');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+
+toggleBtn?.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+    document.body.style.overflow =
+        sidebar.classList.contains('active') ? 'hidden' : 'auto';
+});
+
+overlay?.addEventListener('click', () => {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+});
+</script>
+
 
     <script>
         document.querySelectorAll('.has-submenu > a').forEach(function(menu) {
