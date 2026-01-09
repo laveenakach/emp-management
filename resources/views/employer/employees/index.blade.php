@@ -67,7 +67,8 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="attendanceTable" class="table table-hover table-bordered">
+           <div class="table-responsive">
+                <table id="attendanceTable" class="table table-hover table-bordered align-middle w-100">
                 <thead class="table-light">
                     <tr>
                         <th>Sr. No</th>
@@ -104,6 +105,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
