@@ -6,6 +6,7 @@ use App\Models\Attendances;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class EmployerAttendanceController extends Controller
 {
@@ -38,16 +39,21 @@ class EmployerAttendanceController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'employee_id' => ['required', 'exists:users,id'],
             'date' => ['required', 'date'],
-            'check_in' => ['nullable', 'date_format:H:i'],
-            'check_out' => ['nullable', 'date_format:H:i', 'after:check_in'],
+            'check_in'  => 'nullable|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
         ]);
         // print_r($request->all());
         // die;
-        Attendances::create($request->all());
+        
+        Attendances::create([
+            'employee_id' => $request->employee_id,
+            'date'        => $request->date,
+            'check_in'    => $request->check_in,   // already H:i
+            'check_out'   => $request->check_out,
+        ]);
 
         return redirect()->route('employer.attendance')->with('success', 'Attendance recorded successfully.');
     }
@@ -76,8 +82,8 @@ class EmployerAttendanceController extends Controller
         $request->validate([
             'employee_id' => 'required|exists:users,id',
             'date' => 'required|date',
-            'check_in' => 'required|date_format:H:i',
-            'check_out' => 'required|date_format:H:i|after:check_in',
+            'check_in'  => 'nullable|date_format:H:i',
+            'check_out' => 'nullable|date_format:H:i|after:check_in',
         ]);
 
         // print_r($request->all());
@@ -86,9 +92,12 @@ class EmployerAttendanceController extends Controller
         $attendance = Attendances::findOrFail($id);
         $attendance->employee_id = $request->employee_id;
         $attendance->date = $request->date;
-        $attendance->check_in = $request->check_in;
-        $attendance->check_out = $request->check_out;
-        $attendance->save();
+        $attendance->update([
+            'employee_id' => $request->employee_id,
+            'date'        => $request->date,
+            'check_in'    => $request->check_in,   // already H:i
+            'check_out'   => $request->check_out,
+        ]);
 
         return redirect()->route('employer.attendance')->with('success', 'Employee updated successfully.');
     }
