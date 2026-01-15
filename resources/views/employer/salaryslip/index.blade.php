@@ -62,7 +62,7 @@
         <div class="card-body">
             <div class="table-responsive">
             <table id="salarySlipTable" class="table table-hover table-bordered nowrap" style="width:100%;">
-                <thead class="table-light">
+                <thead class="table-dark">
                     <tr>
                         <th>Sr no</th>
                         <th>Employee ID</th>

@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+input.form-control,
+textarea.form-control,
+select.form-control {
+    border: 1px solid #333 !important; /* dark gray / black */
+    border-radius: 0.5rem; /* optional rounded corners */
+    background-color: #fff; /* optional */
+}
 
+</style>
 <div class="container d-flex justify-content-center mt-2">
     <div class="col-md-8">
 
@@ -43,7 +52,7 @@
                     <div class="row">
                         <!-- Employee Full Name -->
                         <div class="mb-3 col-md-6">
-                            <label for="name" class="form-label">
+                            <label for="name" class="form-label fw-semibold">
                                 Employee Full Name <span class="text-danger">*</span>
                             </label>
                             <input id="name" name="name" type="text" value="{{ old('name', $employee->name) }}"
@@ -55,7 +64,7 @@
 
                         <!-- Email -->
                         <div class="mb-3 col-md-6">
-                            <label for="email" class="form-label">
+                            <label for="email" class="form-label fw-semibold">
                                 Email Address <span class="text-danger">*</span>
                             </label>
                             <input id="email" name="email" type="email" value="{{ old('email', $employee->email) }}"
@@ -67,7 +76,7 @@
 
                         <!-- Mobile Number -->
                         <div class="mb-3 col-md-6">
-                            <label for="mobile_no" class="form-label">
+                            <label for="mobile_no" class="form-label fw-semibold">
                                 Mobile Number (Bank Linked No.) <span class="text-danger">*</span>
                             </label>
                             <input id="mobile_no" name="mobile_no" type="text" value="{{ old('mobile_no', $employee->mobile_no) }}"
@@ -79,7 +88,7 @@
 
                         <!-- Year of Experience -->
                         <div class="mb-3 col-md-6">
-                            <label for="experience" class="form-label">
+                            <label for="experience" class="form-label fw-semibold">
                                 Year of Experience <span class="text-danger">*</span>
                             </label>
                             <input id="experience" name="experience" type="text" value="{{ old('experience', $employee->experience) }}"
@@ -91,7 +100,7 @@
 
                         <!-- Upload Image -->
                         <div class="mb-3 col-md-6">
-                            <label for="photo" class="form-label">
+                            <label for="photo" class="form-label fw-semibold">
                                 Upload Photo <span class="text-muted">(Max upload 5MB)</span>
                             </label>
 
@@ -134,7 +143,7 @@
 
                         <!-- City -->
                         <div class="mb-3 col-md-6">
-                            <label for="city" class="form-label">
+                            <label for="city" class="form-label fw-semibold">
                                 City <span class="text-danger">*</span>
                             </label>
                             <input id="city" name="city" type="text" value="{{ old('city', $employee->city) }}"
@@ -146,7 +155,7 @@
 
                         <!-- Location -->
                         <div class="mb-3 col-md-6">
-                            <label for="location" class="form-label">
+                            <label for="location" class="form-label fw-semibold">
                                 Location <span class="text-danger">*</span>
                             </label>
                             <input id="location" name="location" type="text" value="{{ old('location', $employee->location) }}"
@@ -158,7 +167,7 @@
 
                         <!-- Address -->
                         <div class="mb-3 col-md-6">
-                            <label for="address" class="form-label">
+                            <label for="address" class="form-label fw-semibold">
                                 Address <span class="text-danger">*</span>
                             </label>
                             <textarea id="address" name="address" class="form-control @error('address') is-invalid @enderror" rows="3" required>{{ old('address', $employee->address) }}</textarea>
@@ -169,7 +178,7 @@
 
                         <!-- Aadhar Card -->
                         <div class="mb-3 col-md-6">
-                            <label for="aadhar_card" class="form-label">
+                            <label for="aadhar_card" class="form-label fw-semibold">
                                 Aadhar Card Number <span class="text-danger">*</span>
                             </label>
                             <input id="aadhar_card" name="aadhar_card" type="text" value="{{ old('aadhar_card', $employee->aadhar_card) }}"
@@ -181,7 +190,7 @@
 
                         <!-- PAN Card -->
                         <div class="mb-3 col-md-6">
-                            <label for="pan_card" class="form-label">
+                            <label for="pan_card" class="form-label fw-semibold">
                                 PAN Card Number <span class="text-danger">*</span>
                             </label>
                             <input id="pan_card" name="pan_card" type="text" value="{{ old('pan_card', $employee->pan_card) }}"
@@ -193,7 +202,7 @@
 
                         <!-- Bank Account Number -->
                         <div class="mb-3 col-md-6">
-                            <label for="bank_account" class="form-label">
+                            <label for="bank_account" class="form-label fw-semibold">
                                 Bank Account Number <span class="text-danger">*</span>
                             </label>
                             <input id="bank_account" name="bank_account" type="text" value="{{ old('bank_account', $employee->bank_account) }}"
@@ -205,7 +214,7 @@
 
                         <!-- IFSC Code -->
                         <div class="mb-3 col-md-6">
-                            <label for="ifsc_code" class="form-label">
+                            <label for="ifsc_code" class="form-label fw-semibold">
                                 IFSC Code <span class="text-danger">*</span>
                             </label>
                             <input id="ifsc_code" name="ifsc_code" type="text" value="{{ old('ifsc_code', $employee->ifsc_code) }}"
@@ -251,7 +260,7 @@
 
                           <!-- Department -->
                         <div class="col-md-6">
-                            <label for="Department" class="form-label">Department <span class="text-danger">*</span></label>
+                            <label for="Department" class="form-label fw-semibold">Department <span class="text-danger">*</span></label>
                             <input type="text" id="department" name="department" class="form-control @error('department') is-invalid @enderror"
                                 value="{{ old('ifsc_code', $employee->department) }}" required>
                             @error('department') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -259,7 +268,7 @@
 
                         <!-- Designation -->
                         <div class="col-md-6">
-                            <label for="designation" class="form-label">Designation <span class="text-danger">*</span></label>
+                            <label for="designation" class="form-label fw-semibold">Designation <span class="text-danger">*</span></label>
                             <input type="text" id="designation_id" name="designation_id" class="form-control @error('designation_id') is-invalid @enderror"
                                 value="{{ old('ifsc_code', $employee->designation_id) }}" required>
                             @error('designation_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -268,7 +277,7 @@
 
                         <!-- Set New Password -->
                         <div class="col-md-6 position-relative">
-                            <label for="password" class="form-label">Set New Password</label>
+                            <label for="password" class="form-label fw-semibold">Set New Password</label>
                             <div class="input-group">
                                 <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror">
                                 <span class="input-group-text">
@@ -279,7 +288,7 @@
                         </div>
 
                         <div class="col-md-6 position-relative">
-                            <label for="password_confirmation" class="form-label">Confirm Password</label>
+                            <label for="password_confirmation" class="form-label fw-semibold">Confirm Password</label>
                             <div class="input-group">
                                 <input type="password" id="password_confirmation" name="password_confirmation" value=""  class="form-control">
                                

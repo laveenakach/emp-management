@@ -3,6 +3,23 @@
 @section('content')
 <!-- Custom Styles -->
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
+    td {
+        vertical-align: middle; /* restore table alignment */
+    }
+
+    .action-buttons {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .action-buttons form {
+        margin: 0;
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         color: #000;
@@ -18,6 +35,23 @@
         background-color: black;
         color: white;
     }
+    @media (max-width: 767.98px) {
+    td {
+        vertical-align: middle; /* restore table alignment */
+    }
+
+    .action-buttons {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .action-buttons form {
+        margin: 0;
+    }
+}
+
 </style>
 
 <!-- DataTables CSS -->
@@ -27,11 +61,19 @@
 
 <div class="container mt-2">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Employee Attendance Records</h3>
         <a href="{{ route('employer.attendance.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i> Add Attendance
         </a>
+    </div>
+
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary">Employee Attendance Records</h3>
+        <a href="{{ route('employer.attendance.create') }}"
+                class="text-decoration-none text-dark">
+                    <i class="bi bi-plus-circle fs-5"></i>
+                </a>
     </div>
 
     <!-- Toast Messages -->
@@ -64,7 +106,7 @@
         <div class="card-body">
             <div class="table-responsive">
                 <table id="attendanceTable" class="table table-hover table-bordered nowrap" style="width:100%;">
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
                             <th>Sr No.</th>
                             <th>Employee ID</th>
@@ -85,15 +127,15 @@
                                 <td>{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '-' }}</td>
                                 <td>{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '-' }}</td>
                                 <td>
-                                    <div style="display: flex; gap: 5px;">
+                                    <div class="action-buttons">
                                         <a href="{{ route('employer.attendance.edit', $attendance->id) }}" class="btn btn-warning btn-sm">
-                                            <i class="bi bi-pencil-square"></i> Edit
+                                            <i class="bi bi-pencil-square"></i>
                                         </a>
                                         <form action="{{ route('employer.attendance.delete', $attendance->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">
-                                                <i class="bi bi-trash"></i> Delete
+                                                <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
                                     </div>
@@ -122,7 +164,7 @@
         dom: 'Bfrtip',
         buttons: ['excelHtml5'],
         responsive: false,
-        scrollX: true,
+       // scrollX: true,
         pageLength: 10
     });
     });

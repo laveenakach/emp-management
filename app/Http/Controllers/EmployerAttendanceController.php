@@ -42,7 +42,7 @@ class EmployerAttendanceController extends Controller
         $request->validate([
             'employee_id' => ['required', 'exists:users,id'],
             'date' => ['required', 'date'],
-            'check_in' => ['required', 'date_format:H:i'],
+            'check_in' => ['nullable', 'date_format:H:i'],
             'check_out' => ['nullable', 'date_format:H:i', 'after:check_in'],
         ]);
         // print_r($request->all());

@@ -20,17 +20,28 @@
         color: white;
         border: 2px soild red;
     }
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
 </style>
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 <div class="container mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Employee Leave Requests</h3>
         <a href="{{ route('employee.leaves.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i> Add Leave
         </a>
+    </div>
+
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary">Employee Leave Requests</h3>
+        <a href="{{ route('employee.leaves.create') }}"
+                class="text-decoration-none text-dark">
+                    <i class="bi bi-plus-circle fs-5"></i>
+                </a>
     </div>
 
     <!-- Toast Messages -->
@@ -62,7 +73,7 @@
         <div class="card-body">
             <div class="table-responsive">
             <table id="leaveTable" class="table table-hover table-bordered nowrap" style="width:100%;">
-                <thead class="table-light">
+                <thead class="table-dark">
                     <tr>
                         <th>Sr. No</th>
                         <th>Employee</th>
@@ -173,8 +184,8 @@
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
             pageLength: 10,
-            scrollX: true,
-            scrollY: true,
+             scrollX: true,
+            // scrollY: true,
         });
     });
 </script>

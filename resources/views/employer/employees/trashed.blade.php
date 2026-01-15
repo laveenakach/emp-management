@@ -4,6 +4,22 @@
 @section('content')
 <!-- Custom Styles -->
 <style>
+@media (max-width: 767.98px) {
+    td {
+        vertical-align: middle; /* restore table alignment */
+    }
+
+    .action-buttons {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+    .action-buttons form {
+        margin: 0;
+    }
+}
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         color: #000;
@@ -19,6 +35,9 @@
         background-color: black;
         color: white;
     }
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
 </style>
 
 <!-- DataTables CSS -->
@@ -28,7 +47,7 @@
 
 <div class="container mt-2">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4 gap-2">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center flex-wrap mb-4 gap-2">
 
         <h3 class="fw-bold text-primary">🗑️ Trashed Employee</h3>
         <!-- <a href="{{ route('employer.attendance.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
@@ -39,6 +58,14 @@
             <a href="{{ route('employer.employees.index') }}" class="btn btn-secondary"><i class="bi bi-arrow-left-circle"></i> Back</a>
         </div>
     </div>
+
+    <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+            <h3 class="fw-bold text-primary">🗑️ Trashed Employee</h3>
+
+            <a href="{{ route('employer.employees.index') }}" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+        </div>
 
     <!-- Toast Messages -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
@@ -75,7 +102,7 @@
             <div class="table-responsive">
                 <table id="attendanceTable" class="table table-hover table-bordered nowrap w-100">
 
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
                             <th>Sr. No</th>
                             <th>Employee ID</th>
@@ -87,32 +114,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($trashedemployees as $employee)
+                        @foreach($trashedemployees as $employee)
                         <tr>
                             <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
                             <td>{{ $employee->empuniq_id }}</td>
                             <td>{{ $employee->name }}</td>
                             <td>{{ $employee->email }}</td>
                             <td>{{ $employee->mobile_no }}</td>
-                            <td>{{ $employee->deleted_at->format('d M Y h:i A') }}</td>
+                            <td>{{ $employee->deleted_at?->format('d M Y h:i A') ?? '-' }}</td>
                             <td class="d-flex flex-wrap gap-1">
-                                <form action="{{ route('employees.restore', $employee->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button class="btn btn-sm btn-success"><i class="bi bi-arrow-clockwise"></i> Restore</button>
-                                </form>
+                                <div class="action-buttons">
+                                    <form action="{{ route('employees.restore', $employee->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button class="btn btn-sm btn-success"><i class="bi bi-arrow-clockwise"></i> Restore</button>
+                                    </form>
 
-                                <form action="{{ route('employees.forceDelete', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure? This cannot be undone.')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i> Delete Permanently</button>
-                                </form>
+                                    <form action="{{ route('employees.forceDelete', $employee->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure? This cannot be undone.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger"><i class="bi bi-trash3"></i> Delete Permanently</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
-                        @empty
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">No trashed tasks found.</td>
-                        </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -134,8 +159,11 @@
         $('#attendanceTable').DataTable({
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
-            responsive: true,
-            pageLength: 10
+            responsive: false,
+            pageLength: 10,
+            language: {
+                emptyTable: "No trashed employees found."
+            }
         });
     });
 

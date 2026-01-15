@@ -1,15 +1,33 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+input.form-control,
+textarea.form-control,
+select.form-control {
+    border: 1px solid #333 !important; /* dark gray / black */
+    border-radius: 0.5rem; /* optional rounded corners */
+    background-color: #fff; /* optional */
+}
+
+</style>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
 <div class="container py-2">
     <div class="col-lg-10 mx-auto">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold text-primary">Submit a Leave Request</h4>
             <a href="{{ route('employee.leaves.index') }}" class="btn btn-outline-secondary rounded-pill">
                 <i class="bi bi-arrow-left"></i> Back to List
             </a>
+        </div>
+
+        <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+            <h4 class="fw-bold text-primary">Submit a Leave Request</h4>
+
+            <a href="{{ route('employee.leaves.index') }}" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
         </div>
 
         <!-- Toast Messages -->

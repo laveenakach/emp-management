@@ -25,6 +25,25 @@ require_once public_path('dompdf/autoload.inc.php');
 class SalarySlipController extends Controller
 {
 
+    private function generateAndSaveSalaryPdf($slip, $user)
+    {
+        $pdf = Pdf::loadView('employer.salaryslip.salaryslip_pdf', compact('slip', 'user'));
+
+        $fileName = 'Salary_Slip_' . $user->name . '_' . $slip->month . '.pdf';
+        $filePath = 'uploads/salary_slips/' . $fileName;
+
+        if (!file_exists(public_path('uploads/salary_slips'))) {
+            mkdir(public_path('uploads/salary_slips'), 0755, true);
+        }
+
+        file_put_contents(
+            public_path($filePath),
+            $pdf->output()
+        );
+
+        return $filePath;
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -109,6 +128,7 @@ class SalarySlipController extends Controller
         $request->validate([
             'employee_id'   => 'required|exists:users,id',
             'month'         => 'required|date_format:Y-m',
+            'salary'        => 'required_if:auto_generate,null|numeric|min:0',
             'pdf_file'      => 'nullable|mimes:pdf|max:5120',
             'auto_generate' => 'nullable',
         ]);
@@ -236,33 +256,50 @@ class SalarySlipController extends Controller
          */
         else {
 
-            if (!$request->hasFile('pdf_file')) {
-                return back()->withErrors([
-                    'pdf_file' => 'Please upload salary slip PDF.'
-                ]);
+            $path = null;
+
+            if ($request->hasFile('pdf_file')) {
+                $pdf = $request->file('pdf_file');
+                $pdfName = time() . '_' . $pdf->getClientOriginalName();
+                $pdf->move(public_path('uploads/salary_slips'), $pdfName);
+                $path = 'uploads/salary_slips/' . $pdfName;
             }
 
-            $pdf = $request->file('pdf_file');
-            $pdfName = time() . '_' . $pdf->getClientOriginalName();
-            $pdf->move(public_path('uploads/salary_slips'), $pdfName);
+            $manualGross = $request->salary;
 
-            $path = 'uploads/salary_slips/' . $pdfName;
+            $salarySlip = SalarySlip::updateOrCreate(
 
-            SalarySlip::updateOrCreate(
                 [
                     'employee_id' => $employee->id,
                     'month'       => $month,
                 ],
                 [
-                    'file_path' => $path,
-                    'status'    => 'uploaded',
+                    'gross_salary'      => $manualGross,
+                    'basic_salary'      => round(0.4 * $manualGross, 2),
+                    'hra'               => round(0.4 * (0.4 * $manualGross), 2),
+                    'conveyance'        => 1600,
+                    'medical'           => 1250,
+                    'special_allowance' => round(
+                        $manualGross - (0.4*$manualGross + 0.4*0.4*$manualGross + 1600 + 1250),
+                        2
+                    ),
+                    'status'            => 'uploaded',
+                  //  'file_path'         => $path, // can be null
                 ]
             );
 
+            $user = User::find($employee->id);
+            $pdfPath = $this->generateAndSaveSalaryPdf($salarySlip, $user);
+
+            $salarySlip->update([
+                'file_path' => $pdfPath
+            ]);
+
             return redirect()
                 ->route('employer.salary_slips.index')
-                ->with('success', 'Salary slip uploaded successfully.');
-        }
+                ->with('success', 'Salary slip saved successfully.');
+         }
+
     }
 
     // Send notification email
@@ -292,7 +329,7 @@ class SalarySlipController extends Controller
         $request->validate([
             'employee_id' => 'required|exists:users,id',
             'month' => 'required|date_format:Y-m',
-            'salary' => $request->has('auto_generate') ? 'required' : 'nullable',
+            'salary' => !$request->boolean('auto_generate') ? 'required|numeric' : 'nullable',
             'pdf_file' => 'nullable|mimes:pdf|max:5120',
         ]);
 

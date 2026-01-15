@@ -1,13 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+
+</style>
 <div class="container mt-4">
     <div class="col-lg-10 mx-auto">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold text-primary">Employee Attendance</h4>
             <a href="{{ route('employer.attendance') }}" class="btn btn-outline-secondary rounded-pill">
                 <i class="bi bi-arrow-left"></i> Back to List
             </a>
+        </div>
+
+        <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+            <h4 class="fw-bold text-primary">Employee Attendance</h4>
+
+            <a href="{{ route('employer.attendance') }}" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
         </div>
 
         {{-- Show success message --}}
@@ -35,7 +46,7 @@
             @endif
 
             <div class="mb-3">
-                <label for="employee_id" class="form-label">Select Employee</label>
+                <label for="employee_id" class="form-label fw-semibold">Select Employee</label>
                 <select name="employee_id" id="employee_id"
                     class="form-select @error('employee_id') is-invalid @enderror" required>
                     <option value="">-- Choose Employee --</option>
@@ -52,7 +63,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="date" class="form-label">Date</label>
+                <label for="date" class="form-label fw-semibold">Date</label>
                 <input type="date" name="date" id="date"
                     value="{{ old('date', $Attendances->date ?? '') }}"
                     class="form-control @error('date') is-invalid @enderror" required>
@@ -61,18 +72,22 @@
                 @enderror
             </div>
 
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="check_in" class="form-label">Check-In Time</label>
-                    <input type="time" name="check_in" id="check_in" value="{{ old('check_in', isset($Attendances) ? \Carbon\Carbon::parse($Attendances->check_in)->format('H:i') : '') }}" class="form-control @error('check_in') is-invalid @enderror" required>
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label for="check_in" class="form-label fw-semibold">Check-In Time</label>
+                    <input type="time" name="check_in" id="check_in" 
+                        value="{{ old('check_in', isset($Attendances) ? \Carbon\Carbon::parse($Attendances->check_in)->format('H:i') : '') }}" 
+                        class="form-control @error('check_in') is-invalid @enderror">
                     @error('check_in')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="col">
-                    <label for="check_out" class="form-label">Check-Out Time</label>
-                    <input type="time" name="check_out" id="check_out" value="{{ old('check_out', isset($Attendances) ? \Carbon\Carbon::parse($Attendances->check_out)->format('H:i') : '') }}" class="form-control @error('check_out') is-invalid @enderror" >
+                <div class="col-md-6">
+                    <label for="check_out" class="form-label fw-semibold">Check-Out Time</label>
+                    <input type="time" name="check_out" id="check_out" 
+                        value="{{ old('check_out', isset($Attendances) ? \Carbon\Carbon::parse($Attendances->check_out)->format('H:i') : '') }}" 
+                        class="form-control @error('check_out') is-invalid @enderror">
                     @error('check_out')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

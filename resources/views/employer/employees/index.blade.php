@@ -20,6 +20,9 @@
         color: white;
         border: 2px soild red;
     }
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
 </style>
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -86,7 +89,7 @@
         <div class="card-body">
            <div class="table-responsive">
                 <table id="attendanceTable" class="table table-hover table-bordered align-middle w-100">
-                <thead class="table-light">
+                <thead class="table-dark">
                     <tr>
                         <th>Sr. No</th>
                         <th>Employee ID</th>
@@ -108,13 +111,13 @@
                         <td>{{ $employee->department }}</td>
                         <td>
                             <div style="display: flex; gap: 5px;">
-                                 <a href="{{ route('employer.employees.show', $employee->id) }}" class="btn btn-sm btn-primary">View</a>
-                                <a href="{{ route('employer.employees.edit', $employee->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                 <a href="{{ route('employer.employees.show', $employee->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
+                                <a href="{{ route('employer.employees.edit', $employee->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></a>
 
                                 <form action="{{ route('employees.softDelete', $employee->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
                                 </form>
                             </div>
                         </td>
@@ -141,7 +144,7 @@
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
             pageLength: 10,
-            scrollX: true
+          //  scrollX: true
         });
     });
 </script>
