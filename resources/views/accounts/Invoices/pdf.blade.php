@@ -8,7 +8,7 @@
             font-family: 'DejaVu Sans', sans-serif;
             font-size: 12px;
             color: #2b2b2b;
-            margin: 10px 30px 30px 30px;
+            margin: 10px 30px 10px 30px;
             line-height: 1.4;
         }
 
@@ -29,7 +29,7 @@
         .company-info td { vertical-align: top; }
         .company-name { font-size: 14px; font-weight: bold; color: #003366; }
 
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; page-break-inside: avoid;}
         th, td { border: 1px solid #ccc; padding: 5px; }
         thead { background-color: #e6f2ff; }
         th { color: #003366; text-align: left; }
@@ -42,8 +42,9 @@
         .footer {
             text-align: center;
             font-size: 10px;
-            margin-top: 25px;
+            margin-top: 15px;
             color: #888;
+            page-break-inside: avoid;
         }
         .company-info td:last-child {
             text-align: left;

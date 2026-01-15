@@ -217,9 +217,12 @@
                 <!-- Your next installment of 10000 rs due on 5th December 2025
                 Your total fees of Enrollment program for 6 month is 40000 rs including 1 % convience charges.<br> Please make payment on time<br>
                 Thank you<br> -->
-                Your next installment of 38000 rs due on 15th November 2025
-                Your total fees of Enrollment program for 6 month is 43000 rs including 1 % convience charges.<br> Please make payment on time <br>
-                Thank you
+                <textarea 
+                        name="payment_instructions" 
+                        class="form-control" 
+                        rows="5"
+                        placeholder="Enter payment instructions here...">
+                    </textarea>
                 <!-- Please ensure payment is made before the due date to confirm your admission -->
             </td>
             <td width="40%">

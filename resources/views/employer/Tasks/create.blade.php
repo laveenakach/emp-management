@@ -87,20 +87,78 @@
                             <!-- Start Date -->
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Start Date <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="start_date" class="form-control"
+                                <input type="date" name="start_date" class="form-control"
                                     value="{{ old('start_date', isset($task->start_date) ? \Carbon\Carbon::parse($task->start_date)->format('Y-m-d\TH:i') : '') }}"
                                     required>
-                                @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                 @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            <!-- <div class="mb-3 col-md-6">
+                                <label class="form-label">Start Time</label>
+
+                                @php
+                                    $startTime = old(
+                                        'start_time',
+                                        isset($task->start_date)
+                                            ? \Carbon\Carbon::parse($task->start_date)->format('H:i')
+                                            : ''
+                                    );
+                                @endphp
+
+                                <select name="start_time" class="form-select">
+                                    <option value="">Select Time</option>
+
+                                    @for ($h = 0; $h < 24; $h++)
+                                        @foreach (['00','15','30','45'] as $m)
+                                            @php
+                                                $time24 = sprintf('%02d:%s', $h, $m);
+                                                $time12 = \Carbon\Carbon::createFromFormat('H:i', $time24)->format('g:i A');
+                                            @endphp
+                                            <option value="{{ $time24 }}" {{ $startTime === $time24 ? 'selected' : '' }}>
+                                                {{ $time12 }}
+                                            </option>
+                                        @endforeach
+                                    @endfor
+                                </select>
+                            </div> -->
 
                             <!-- Due Date -->
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Due Date <span class="text-danger">*</span></label>
-                                <input type="datetime-local" name="due_date" class="form-control"
+                                <input type="date" name="due_date" class="form-control"
                                     value="{{ old('due_date', isset($task->due_date) ? \Carbon\Carbon::parse($task->due_date)->format('Y-m-d\TH:i') : '') }}"
                                     required>
                                 @error('due_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
+
+                            <!-- <div class="mb-3 col-md-6">
+                                <label class="form-label">Due Time</label>
+
+                                @php
+                                    $dueTime = old(
+                                        'due_time',
+                                        isset($task->due_date)
+                                            ? \Carbon\Carbon::parse($task->due_date)->format('H:i')
+                                            : ''
+                                    );
+                                @endphp
+
+                                <select name="start_time" class="form-select">
+                                    <option value="">Select Time</option>
+
+                                    @for ($h = 0; $h < 24; $h++)
+                                        @foreach (['00','15','30','45'] as $m)
+                                            @php
+                                                $time24 = sprintf('%02d:%s', $h, $m);
+                                                $time12 = \Carbon\Carbon::createFromFormat('H:i', $time24)->format('g:i A');
+                                            @endphp
+                                            <option value="{{ $time24 }}" {{ $dueTime === $time24 ? 'selected' : '' }}>
+                                                {{ $time12 }}
+                                            </option>
+                                        @endforeach
+                                    @endfor
+                                </select>
+                            </div> -->
 
                             <!-- Assign User -->
                             @php
