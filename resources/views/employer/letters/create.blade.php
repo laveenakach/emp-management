@@ -5,10 +5,20 @@
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold text-primary">📄 Upload Offer or Appointment Letters</h2>
                 <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-secondary rounded-pill">
                     <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+                <h2 class="fw-bold text-primary flex-grow-1 me-2" style="white-space: normal; font-size: 1.2rem;">
+                    📄 Upload Offer or Appointment Letters
+                </h2>
+
+                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left"></i>
                 </a>
             </div>
 

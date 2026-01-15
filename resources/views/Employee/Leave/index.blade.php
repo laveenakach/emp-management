@@ -184,7 +184,7 @@
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
             pageLength: 10,
-             scrollX: true,
+            // scrollX: true,
             // scrollY: true,
         });
     });
