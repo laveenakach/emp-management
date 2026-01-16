@@ -29,11 +29,18 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 <div class="container mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Bill</h3>
         <a href="{{ route('billings.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i>Create Bill
         </a>
+    </div>
+
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary">Bill</h3>
+            <a href="{{ route('billings.create') }}">
+                <i class="bi bi-plus-circle fs-5"></i>
+            </a>
     </div>
 
     <!-- Toast Messages -->
@@ -100,12 +107,12 @@
                                 <a href="{{ route('billings.download', $bill->id) }}" class="btn btn-sm btn-primary">Download PDF</a>
                             </td>
                             <td>
-                                <a href="{{ route('billings.edit', $bill->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{{ route('billings.edit', $bill->id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
                                 <form action="{{ route('billings.destroy', $bill->id) }}" method="POST" style="display:inline-block">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Are you sure?')">Delete</button>
+                                        onclick="return confirm('Are you sure?')"><i class="bi bi-trash"></i></button>
                                 </form>
                             </td>
                             

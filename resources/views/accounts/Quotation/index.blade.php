@@ -29,11 +29,18 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 <div class="container mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Quotation</h3>
         <a href="{{ route('quotations.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i>Create Quotation
         </a>
+    </div>
+
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary">Quotation</h3>
+            <a href="{{ route('quotations.create') }}">
+                <i class="bi bi-plus-circle fs-5"></i>
+            </a>
     </div>
 
     <!-- Toast Messages -->
@@ -92,15 +99,17 @@
                                 </a>
                             </td>
                             <td>
-                                <a href="{{ route('quotations.edit', $q->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="{{ route('quotations.destroy', $q->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this quotation?')">
-                                    @csrf @method('DELETE')
-                                    <button class="btn btn-sm btn-danger">Delete</button>
-                                </form>
-                                <!-- <form action="{{ route('quotations.email', $q->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    <button class="btn btn-sm btn-info">Email</button>
-                                </form> -->
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('quotations.edit', $q->id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i></a>
+                                    <form action="{{ route('quotations.destroy', $q->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this quotation?')">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                    <!-- <form action="{{ route('quotations.email', $q->id) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button class="btn btn-sm btn-info">Email</button>
+                                    </form> -->
+                                </div>
                             </td>
                         </tr>
                         @endforeach
