@@ -2,6 +2,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -60,48 +63,50 @@
 
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table id="salarySlipTable" class="table table-hover table-bordered table-responsive">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr no</th>
-                        <th>Quotation No</th>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Notes</th>
-                        <th>PDF</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($Quotations as $q)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $q->quotation_number }}</td>
-                        <td>{{ $q->client->name }}</td>
-                        <td>{{ $q->quotation_date }}</td>
-                        <td>{{ $q->status }}</td>
-                        <td>{{ $q->notes }}</td>
-                        <td>
-                            <a href="{{ route('quotations.download', $q->id) }}" class="btn btn-sm btn-primary">
-                                Download PDF
-                            </a>
-                        </td>
-                        <td>
-                            <a href="{{ route('quotations.edit', $q->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                            <form action="{{ route('quotations.destroy', $q->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this quotation?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Delete</button>
-                            </form>
-                            <!-- <form action="{{ route('quotations.email', $q->id) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button class="btn btn-sm btn-info">Email</button>
-                            </form> -->
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="salarySlipTable" class="table table-hover table-bordered table-responsive">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sr no</th>
+                            <th>Quotation No</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>PDF</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($Quotations as $q)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $q->quotation_number }}</td>
+                            <td>{{ $q->client->name }}</td>
+                            <td>{{ $q->quotation_date }}</td>
+                            <td>{{ $q->status }}</td>
+                            <td>{{ $q->notes }}</td>
+                            <td>
+                                <a href="{{ route('quotations.download', $q->id) }}" class="btn btn-sm btn-primary">
+                                    Download PDF
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ route('quotations.edit', $q->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="{{ route('quotations.destroy', $q->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this quotation?')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                                <!-- <form action="{{ route('quotations.email', $q->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button class="btn btn-sm btn-info">Email</button>
+                                </form> -->
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

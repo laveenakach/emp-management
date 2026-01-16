@@ -2,6 +2,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -60,55 +63,57 @@
 
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table id="billingTable" class="table table-hover table-bordered table-responsive">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr no</th>
-                        <th>Bill No</th>
-                        <th>Client</th>
-                        <th>Bill Date</th>
-                        <th>Due Date</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>PDF</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($bills as $index => $bill)
-                    <tr>
-                        <td>{{ $bills->firstItem() + $index }}</td>
-                        <td>{{ $bill->bill_number }}</td>
-                        <td>{{ $bill->client->name ?? '-' }}</td>
-                        <td>{{ \Carbon\Carbon::parse($bill->bill_date)->format('d M Y') }}</td>
-                        <td>{{ $bill->due_date ? \Carbon\Carbon::parse($bill->due_date)->format('d M Y') : '-' }}</td>
-                        <td>₹{{ number_format($bill->total_amount, 2) }}</td>
-                        <td>
-                            @if($bill->status == 'Paid')
-                            <span class="badge bg-success">Paid</span>
-                            @elseif($bill->status == 'Overdue')
-                            <span class="badge bg-danger">Overdue</span>
-                            @else
-                            <span class="badge bg-warning text-dark">Pending</span>
-                            @endif
-                        </td>
-                        <td>
-                            <a href="{{ route('billings.download', $bill->id) }}" class="btn btn-sm btn-primary">Download PDF</a>
-                        </td>
-                        <td>
-                            <a href="{{ route('billings.edit', $bill->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                            <form action="{{ route('billings.destroy', $bill->id) }}" method="POST" style="display:inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Are you sure?')">Delete</button>
-                            </form>
-                        </td>
-                        
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="billingTable" class="table table-hover table-bordered table-responsive">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sr no</th>
+                            <th>Bill No</th>
+                            <th>Client</th>
+                            <th>Bill Date</th>
+                            <th>Due Date</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>PDF</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($bills as $index => $bill)
+                        <tr>
+                            <td>{{ $bills->firstItem() + $index }}</td>
+                            <td>{{ $bill->bill_number }}</td>
+                            <td>{{ $bill->client->name ?? '-' }}</td>
+                            <td>{{ \Carbon\Carbon::parse($bill->bill_date)->format('d M Y') }}</td>
+                            <td>{{ $bill->due_date ? \Carbon\Carbon::parse($bill->due_date)->format('d M Y') : '-' }}</td>
+                            <td>₹{{ number_format($bill->total_amount, 2) }}</td>
+                            <td>
+                                @if($bill->status == 'Paid')
+                                <span class="badge bg-success">Paid</span>
+                                @elseif($bill->status == 'Overdue')
+                                <span class="badge bg-danger">Overdue</span>
+                                @else
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('billings.download', $bill->id) }}" class="btn btn-sm btn-primary">Download PDF</a>
+                            </td>
+                            <td>
+                                <a href="{{ route('billings.edit', $bill->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <form action="{{ route('billings.destroy', $bill->id) }}" method="POST" style="display:inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            </td>
+                            
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -2,6 +2,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -60,48 +63,50 @@
 
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table id="billingTable" class="table table-hover table-bordered table-responsive">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr no</th>
-                        <th>Bill No</th>
-                        <th>Invoice No</th>
-                        <th>Client</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>PDF</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($invoices as $inv)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $inv->bill_number }}</td>
-                        <td>{{ $inv->invoice_number }}</td>
-                        <td>{{ $inv->client->name }}</td>
-                        <td>{{ $inv->invoice_date }}</td>
-                        <td>₹{{ $inv->total_amount }}</td>
-                        <td>{{ $inv->status }}</td>
-                        <td>
-                            <a href="{{ route('invoices.download', $inv->id) }}" class="btn btn-sm btn-primary">Download PDF</a>
-                        </td>
-                        <td>
-                            <a href="{{ route('invoices.edit', $inv->id) }}" class="btn btn-sm btn-primary">Edit</a>
-                            <form action="{{ route('invoices.destroy', $inv->id) }}" method="POST" style="display:inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Are you sure?')">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
+            <div class="table-responsive">
+                <table id="billingTable" class="table table-hover table-bordered table-responsive">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sr no</th>
+                            <th>Bill No</th>
+                            <th>Invoice No</th>
+                            <th>Client</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>PDF</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($invoices as $inv)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $inv->bill_number }}</td>
+                            <td>{{ $inv->invoice_number }}</td>
+                            <td>{{ $inv->client->name }}</td>
+                            <td>{{ $inv->invoice_date }}</td>
+                            <td>₹{{ $inv->total_amount }}</td>
+                            <td>{{ $inv->status }}</td>
+                            <td>
+                                <a href="{{ route('invoices.download', $inv->id) }}" class="btn btn-sm btn-primary">Download PDF</a>
+                            </td>
+                            <td>
+                                <a href="{{ route('invoices.edit', $inv->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <form action="{{ route('invoices.destroy', $inv->id) }}" method="POST" style="display:inline-block">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
 
-                   
-                </tbody>
-            </table>
+                    
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

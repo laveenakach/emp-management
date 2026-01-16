@@ -7,7 +7,19 @@
         <div class="col-lg-8">
             <div class="card shadow border-0">
                 <div class="card-body">
-                    <h4 class="mb-3 text-primary fw-bold">🕒 Reschedule Task</h4>
+                    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-3 text-primary fw-bold">🕒 Reschedule Task</h4>
+                        <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary rounded-pill">
+                            <i class="bi bi-arrow-left-circle me-1"></i> Back
+                        </a>
+                    </div>
+
+                    <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+                        <h4 class="mb-3 text-primary fw-bold">🕒 Reschedule Task</h4>
+                        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-dark btn-sm">
+                                <i class="bi bi-arrow-left"></i>
+                            </a>
+                    </div>
 
                     <form method="POST" action="{{ route('tasks.reschedule', $task->id) }}">
                         @csrf

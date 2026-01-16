@@ -9,7 +9,7 @@
             {{-- Task Card --}}
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-3">
                         <h3 class="text-primary fw-bold mb-0">
                             <i class="bi bi-journal-text me-2"></i>Task Details
                         </h3>
@@ -17,6 +17,16 @@
                             <i class="bi bi-arrow-left-circle me-1"></i> Back
                         </a>
 
+                    </div>
+
+                    <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+                        <h3 class="text-primary fw-bold mb-0">
+                            <i class="bi bi-journal-text me-1"></i>Task Details
+                        </h3>
+
+                        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-dark btn-sm">
+                                <i class="bi bi-arrow-left"></i>
+                            </a>
                     </div>
 
                     <div class="row gy-3">

@@ -3,6 +3,33 @@
 
 @section('content')
 <style>
+    /* Mobile-friendly DataTable buttons */
+    @media (max-width: 768px) {
+        div.dt-buttons {
+            width: 100%;
+        }
+
+        div.dt-buttons .btn {
+            width: 100%;
+            margin-bottom: 6px;
+        }
+    }
+
+    div.dataTables_wrapper {
+        width: 100%;
+    }
+
+    .dataTables_paginate {
+        margin-right: 10px;
+    }
+
+    .dataTables_info {
+        margin-left: 10px;
+    }
+
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -29,12 +56,12 @@
     }
 </style>
 <!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
 
 <div class="container mt-2">
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold text-primary">Task List</h4>
         <div>
             @if(in_array(auth()->user()->role, ['team_leader', 'manager','employer']))
@@ -49,8 +76,20 @@
         </div>
     </div>
 
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-primary">Task List</h4>
+        <div class="d-flex align-items-center gap-3">
+            @if(in_array(auth()->user()->role, ['team_leader', 'manager','employer']))
+            <a href="{{ route('tasks.create') }}">
+                <i class="bi bi-plus-circle fs-5"></i>
+            </a>
+            <a href="{{ route('tasks.trashed') }}" class="text-danger">
+                <i class="bi bi-trash3-fill"></i>
+            </a>
+            @endif
 
-
+        </div>
+    </div>
 
     <!-- Toast Messages -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
@@ -83,85 +122,87 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="salarySlipTable" class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr. No</th>
-                        <th>Title</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Start Date</th>
-                        <th>Due Date</th>
-                        <th>Assigned To</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($tasks as $task)
-                    @php
-                    $assignedUsers = $task->assigned_to; // No json_decode needed
-                    @endphp
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $task->title }}</td>
-                        <td>{{ ucfirst($task->priority) }}</td>
-                        <td>{{ ucfirst($task->status) }}</td>
-                        <td>{{ \Carbon\Carbon::parse($task->start_date)->format('d M Y, h:i A') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($task->due_date)->format('d M Y, h:i A') }}</td>
+            <div class="table-responsive">
+                <table id="salarySlipTable" class="table table-hover table-bordered nowrap" style="width:100%;">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sr. No</th>
+                            <th>Title</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Start Date</th>
+                            <th>Due Date</th>
+                            <th>Assigned To</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($tasks as $task)
+                        @php
+                        $assignedUsers = $task->assigned_to; // No json_decode needed
+                        @endphp
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $task->title }}</td>
+                            <td>{{ ucfirst($task->priority) }}</td>
+                            <td>{{ ucfirst($task->status) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($task->start_date)->format('d M Y, h:i A') }}</td>
+                            <td>{{ \Carbon\Carbon::parse($task->due_date)->format('d M Y, h:i A') }}</td>
 
-                        {{-- Assigned Users --}}
-                        <td>
-                            @foreach($assignedUsers as $index => $userId)
-                            @php $user = \App\Models\User::find($userId); @endphp
-                            @if($user)
-                            {{ $user->name }}{{ $index !== count($assignedUsers) - 1 ? ',' : '' }}<br>
-                            @endif
-                            @endforeach
-                        </td>
-
-                        <td class="text-nowrap">
-                            <div class="d-flex gap-2">
-                                {{-- Show button only if the logged-in employee is assigned --}}
-                                @if(auth()->user()->role === 'employee' || in_array(auth()->id(), $assignedUsers))
-                                <button
-                                    class="btn btn-sm btn-success"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#submitTaskModal"
-                                    data-task-id="{{ $task->id }}"
-                                    data-task-title="{{ $task->title }}"
-                                    data-task-status="{{ $task->status }}">
-                                    <i class="bi bi-send-check"></i> Submit Task
-                                </button>
+                            {{-- Assigned Users --}}
+                            <td>
+                                @foreach($assignedUsers as $index => $userId)
+                                @php $user = \App\Models\User::find($userId); @endphp
+                                @if($user)
+                                {{ $user->name }}{{ $index !== count($assignedUsers) - 1 ? ',' : '' }}<br>
                                 @endif
+                                @endforeach
+                            </td>
 
-                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
-                                    <i class="bi bi-chat-dots-fill"></i> View
-                                </a>
-
-                                @if(auth()->user()->id === $task->created_by)
-                                <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-
-                                <a href="{{ route('tasks.reschedule.form', $task->id) }}" class="btn btn-sm btn-success d-flex align-items-center gap-1">
-                                    <i class="bi bi-clock-history"></i> Reschedule
-                                </a>
-
-                                <form action="{{ route('tasks.softDelete', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="bi bi-trash3"></i> Delete
+                            <td class="text-nowrap">
+                                <div class="d-flex gap-2">
+                                    {{-- Show button only if the logged-in employee is assigned --}}
+                                    @if(auth()->user()->role === 'employee' || in_array(auth()->id(), $assignedUsers))
+                                    <button
+                                        class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#submitTaskModal"
+                                        data-task-id="{{ $task->id }}"
+                                        data-task-title="{{ $task->title }}"
+                                        data-task-status="{{ $task->status }}">
+                                        <i class="bi bi-send-check"></i> Submit Task
                                     </button>
-                                </form>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
+                                    @endif
 
-                </tbody>
-            </table>
+                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                                        <i class="bi bi-chat-dots-fill"></i> View
+                                    </a>
+
+                                    @if(auth()->user()->id === $task->created_by)
+                                    <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+
+                                    <a href="{{ route('tasks.reschedule.form', $task->id) }}" class="btn btn-sm btn-success d-flex align-items-center gap-1">
+                                        <i class="bi bi-clock-history"></i> Reschedule
+                                    </a>
+
+                                    <form action="{{ route('tasks.softDelete', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash3"></i> Delete
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -226,27 +267,42 @@
     });
 </script>
 
-
-<!-- Scripts -->
+<!-- jQuery (MUST be first) -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- DataTables core -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Buttons -->
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+
+<!-- Export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
 
 <script>
     $(document).ready(function() {
         $('#salarySlipTable').DataTable({
-            dom: 'Bfrtip',
-            buttons: ['excelHtml5'],
-            pageLength: 10
-        });
+                dom:
+                    "<'row mb-2'<'col-md-6 d-flex align-items-center'B><'col-md-6 d-flex justify-content-end'f>>" +
+                    "<'row'<'col-12'tr>>" +
+                    "<'row mt-3'<'col-md-5'i><'col-md-7 d-flex justify-content-end'p>>",
+
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: '<i class="bi bi-file-earmark-excel"></i> Excel',
+                    className: 'btn btn-success btn-sm rounded-pill'
+                }],
+
+                pageLength: 10,
+                responsive: true
+            });
+
     });
 </script>
-
-<!-- Bootstrap Icons CDN (Optional) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

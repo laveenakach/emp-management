@@ -2,6 +2,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -60,59 +63,61 @@
 
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table id="salarySlipTable" class="table table-hover table-bordered table-responsive">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr no</th>
-                        <th>Client ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <!-- <th>Address</th>
-                        <th>GST No</th>
-                        <th>Bank Account</th>
-                        <th>IFSC Code</th> -->
-                        <th>Requirement</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($clients as $client)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
-                        <td>{{ $client->CLTuniq_id}}</td>
-                        <td>{{ $client->name}}</td>
-                        <td>{{ $client->email}}</td>
-                        <td>{{ $client->phone }}</td>
-                        <!-- <td>{{ $client->address }}</td>
-                        <td>{{ $client->gstin }}</td>
-                        <td>{{ $client->bank_account }}</td>          
-                        <td>{{ $client->ifsc_code }}</td> -->
-                        <td>
-                             <a href="{{ asset($client->project_requirement) }}" class="btn btn-sm btn-outline-info" target="_blank">
-                                <i class="bi bi-file-earmark-pdf"></i> View PDF
-                            </a>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-2 flex-wrap">
-                                 <a href="{{ route('accounts.clients.show', $client->id) }}" class="btn btn-sm btn-primary">View</a>
-
-                                <a href="{{ route('accounts.clients.edit', $client->id) }}" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil-square"></i> Edit
+            <div class="table-responsive">
+                <table id="salarySlipTable" class="table table-hover table-bordered table-responsive">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sr no</th>
+                            <th>Client ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <!-- <th>Address</th>
+                            <th>GST No</th>
+                            <th>Bank Account</th>
+                            <th>IFSC Code</th> -->
+                            <th>Requirement</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($clients as $client)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
+                            <td>{{ $client->CLTuniq_id}}</td>
+                            <td>{{ $client->name}}</td>
+                            <td>{{ $client->email}}</td>
+                            <td>{{ $client->phone }}</td>
+                            <!-- <td>{{ $client->address }}</td>
+                            <td>{{ $client->gstin }}</td>
+                            <td>{{ $client->bank_account }}</td>          
+                            <td>{{ $client->ifsc_code }}</td> -->
+                            <td>
+                                <a href="{{ asset($client->project_requirement) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                                    <i class="bi bi-file-earmark-pdf"></i> View PDF
                                 </a>
-                                <form action="{{ route('accounts.clients.destroy', $client->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{{ route('accounts.clients.show', $client->id) }}" class="btn btn-sm btn-primary">View</a>
+
+                                    <a href="{{ route('accounts.clients.edit', $client->id) }}" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <form action="{{ route('accounts.clients.destroy', $client->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

@@ -2,6 +2,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         color: #000;
@@ -59,49 +62,51 @@
 
     <div class="card shadow-sm">
         <div class="card-body table-responsive">
-            <table id="candidateTable" class="table table-hover table-bordered table-responsive">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr No</th>
-                        <th>Candidate Id</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>GST No</th>
-                        <th>Bank Account</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($candidates as $candidate)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $candidate->candidate_id }}</td>
-                        <td>{{ $candidate->name }}</td>
-                        <td>{{ $candidate->email }}</td>
-                        <td>{{ $candidate->phone }}</td>
-                        <td>{{ $candidate->gst_number }}</td>
-                        <td>{{ $candidate->bank_account_number }}</td>
-                       
-                        <td>
-                            <div class="d-flex gap-2 flex-wrap">
-                                 <a href="{{ route('candidates.show', $candidate->id) }}" class="btn btn-sm btn-primary">View</a>
-                                <a href="{{ route('candidates.edit', $candidate->id) }}" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                                <form action="{{ route('candidates.destroy', $candidate->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this candidate?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table id="candidateTable" class="table table-hover table-bordered table-responsive">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sr No</th>
+                            <th>Candidate Id</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>GST No</th>
+                            <th>Bank Account</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($candidates as $candidate)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $candidate->candidate_id }}</td>
+                            <td>{{ $candidate->name }}</td>
+                            <td>{{ $candidate->email }}</td>
+                            <td>{{ $candidate->phone }}</td>
+                            <td>{{ $candidate->gst_number }}</td>
+                            <td>{{ $candidate->bank_account_number }}</td>
+                        
+                            <td>
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="{{ route('candidates.show', $candidate->id) }}" class="btn btn-sm btn-primary">View</a>
+                                    <a href="{{ route('candidates.edit', $candidate->id) }}" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <form action="{{ route('candidates.destroy', $candidate->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this candidate?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

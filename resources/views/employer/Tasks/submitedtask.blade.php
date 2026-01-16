@@ -3,6 +3,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -70,57 +73,59 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="salarySlipTable" class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Sr. No</th>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Progress/Work Details</th>
-                        <th>Submitted At</th>
-                        <th>Submission file</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($tasks as $task)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
-                        <td>{{ $task->title }}</td>
-                        <td>{{ ucfirst($task->status) }}</td>
-                        <td>{{ ucfirst($task->progress) }}</td>
-                        <td>{{ \Carbon\Carbon::parse($task->submitted_at)->format('d M Y, h:i A') }}</td>
-                        <td>
-                            <a href="{{ asset($task->submission_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-file-earmark-arrow-down"></i> View Attachment
-                            </a>
-                        </td>
-                        <td class="text-nowrap">
-                            <div class="d-flex gap-2">
-                                <!-- @if(auth()->user()->role === 'employee')
-                                <button
-                                    class="btn btn-sm btn-success"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#submitTaskModal"
-                                    data-task-id="{{ $task->id }}"
-                                    data-task-title="{{ $task->title }}"
-                                    data-task-status="{{ $task->status }}"
-                                    >
-                                    <i class="bi bi-send-check"></i> Submit Task
-                                </button>
-                                @endif -->
-
-                                <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
-                                    <i class="bi bi-chat-dots-fill"></i> View
+            <div class="table-responsive">
+                <table id="salarySlipTable" class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Sr. No</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Progress/Work Details</th>
+                            <th>Submitted At</th>
+                            <th>Submission file</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($tasks as $task)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
+                            <td>{{ $task->title }}</td>
+                            <td>{{ ucfirst($task->status) }}</td>
+                            <td>{{ ucfirst($task->progress) }}</td>
+                            <td>{{ \Carbon\Carbon::parse($task->submitted_at)->format('d M Y, h:i A') }}</td>
+                            <td>
+                                <a href="{{ asset($task->submission_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-file-earmark-arrow-down"></i> View Attachment
                                 </a>
+                            </td>
+                            <td class="text-nowrap">
+                                <div class="d-flex gap-2">
+                                    <!-- @if(auth()->user()->role === 'employee')
+                                    <button
+                                        class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#submitTaskModal"
+                                        data-task-id="{{ $task->id }}"
+                                        data-task-title="{{ $task->title }}"
+                                        data-task-status="{{ $task->status }}"
+                                        >
+                                        <i class="bi bi-send-check"></i> Submit Task
+                                    </button>
+                                    @endif -->
 
-                            </div>
-                        </td>
+                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                                        <i class="bi bi-chat-dots-fill"></i> View
+                                    </a>
 
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                                </div>
+                            </td>
+
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
