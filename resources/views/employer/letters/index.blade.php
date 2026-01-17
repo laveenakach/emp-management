@@ -30,16 +30,16 @@
 
 <div class="container mt-2">
     <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-primary">Offer or Appointment latters</h3>
+        <h3 class="fw-bold text-primary">Offer or Appointment letters</h3>
         @if(auth()->user()->role === 'employer')
         <a href="{{ route('letters.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
-            <i class="bi bi-plus-circle me-2"></i>Upload Offer or Appointment latters
+            <i class="bi bi-plus-circle me-2"></i>Upload Offer or Appointment letters
         </a>
         @endif
     </div>
 
     <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold text-primary">Offer or Appointment latters</h3>
+        <h3 class="fw-bold text-primary">Offer or Appointment letters</h3>
         @if(auth()->user()->role === 'employer')
         <a href="{{ route('letters.create') }}">
             <i class="bi bi-plus-circle fs-5"></i>
@@ -75,7 +75,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-            <table id="lattersTable" class="table table-hover table-bordered nowrap" style="width:100%;">
+            <table id="lettersTable" class="table table-hover table-bordered nowrap" style="width:100%;">
                 <thead class="table-dark">
                     <tr>
                         <th>Sr no</th>
@@ -134,7 +134,7 @@
 
 <script>
     $(document).ready(function() {
-        $('#lattersTable').DataTable({
+        $('#lettersTable').DataTable({
             dom: 'Bfrtip',
             buttons: ['excelHtml5'],
             pageLength: 10,

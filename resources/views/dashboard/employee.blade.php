@@ -112,7 +112,7 @@
                     <div class="card-body d-flex align-items-center p-3">
                         <i class="bi bi-envelope-plus fs-1 me-3 dashboard-icon"></i>
                         <div>
-                            <h6 class="mb-1">Offer/Appointment latters</h6>
+                            <h6 class="mb-1">Offer/Appointment letters</h6>
                             <h4 class="mb-0 counter" data-count="{{ $letters }}">0</h4>
                         </div>
                     </div>

@@ -42,7 +42,7 @@
         </li>
         <li class="nav-item">
             <a href="{{ route('letters.index') }}" class="nav-link text-white">
-                <i class="bi bi-envelope-plus"></i> Offer/Appointment latters
+                <i class="bi bi-envelope-plus"></i> Offer/Appointment letters
             </a>
         </li>
 
@@ -109,7 +109,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('letters.index') }}" class="nav-link text-white">
-                        <i class="bi bi-upload"></i> Upload latters
+                        <i class="bi bi-upload"></i> Upload letters
                     </a>
                 </li>
             </ul>
