@@ -11,6 +11,7 @@
         <div class="card-body">
             {{-- Invoice Info --}}
             <h5 class="fw-bold mb-3">Invoice Info</h5>
+            <div class="table-responsive">
             <table class="table table-bordered">
                 <tr>
                     <th width="30%">Invoice No</th>
@@ -29,9 +30,11 @@
                     </td>
                 </tr>
             </table>
+            </div>
 
             {{-- Candidate Info --}}
             <h5 class="fw-bold mt-4 mb-3">Candidate Info</h5>
+            <div class="table-responsive">
             <table class="table table-bordered">
                 <tr>
                     <th width="30%">Name</th>
@@ -53,9 +56,11 @@
                     <td>{{ $invoice->candidate->address }}</td>
                 </tr>
             </table>
+            </div>
 
             {{-- Service Items --}}
             <h5 class="fw-bold mt-4 mb-3">Service Items</h5>
+            <div class="table-responsive">
             <table class="table table-bordered">
                 <thead class="table-light">
                     <tr>
@@ -80,9 +85,11 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
 
             {{-- Totals --}}
             <h5 class="fw-bold mt-4 mb-3">Summary</h5>
+            <div class="table-responsive">
             <table class="table table-bordered w-50 ms-auto">
                 <tr>
                     <th width="40%">Subtotal</th>
@@ -111,6 +118,7 @@
                     <td class="text-end">₹{{ number_format($invoice->total_amount, 2) }}</td>
                 </tr>
             </table>
+            </div>
 
         </div>
     </div>

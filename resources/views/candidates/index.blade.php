@@ -28,11 +28,18 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 <div class="container mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Candidates</h3>
         <a href="{{ route('candidates.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i>Create Candidate
         </a>
+    </div>
+
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary">Candidates</h3>
+            <a href="{{ route('candidates.create') }}">
+                <i class="bi bi-plus-circle fs-5"></i>
+            </a>
     </div>
 
     <!-- Toast Messages -->
@@ -64,7 +71,7 @@
         <div class="card-body table-responsive">
             <div class="table-responsive">
                 <table id="candidateTable" class="table table-hover table-bordered table-responsive">
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
                             <th>Sr No</th>
                             <th>Candidate Id</th>
@@ -87,17 +94,17 @@
                             <td>{{ $candidate->gst_number }}</td>
                             <td>{{ $candidate->bank_account_number }}</td>
                         
-                            <td>
-                                <div class="d-flex gap-2 flex-wrap">
-                                    <a href="{{ route('candidates.show', $candidate->id) }}" class="btn btn-sm btn-primary">View</a>
+                            <td class="text-nowrap">
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('candidates.show', $candidate->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
                                     <a href="{{ route('candidates.edit', $candidate->id) }}" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square"></i> Edit
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <form action="{{ route('candidates.destroy', $candidate->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this candidate?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="bi bi-trash"></i> Delete
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>

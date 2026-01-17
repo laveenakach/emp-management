@@ -5,10 +5,18 @@
     <div class="row justify-content-center">
         <div class="col-md-11 col-lg-10">
 
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold text-primary">{{ isset($invoice) ? 'Edit Candidate Invoice' : 'Create Candidate Invoice' }}</h2>
                 <a href="{{ route('candidates.invoices.index') }}" class="btn btn-outline-secondary rounded-pill">
                     <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
+                <h2 class="fw-bold text-primary">{{ isset($invoice) ? 'Edit Candidate Invoice' : 'Create Candidate Invoice' }}</h2>
+
+                <a href="{{ route('candidates.invoices.index') }}" class="btn btn-dark btn-sm">
+                    <i class="bi bi-arrow-left"></i>
                 </a>
             </div>
 

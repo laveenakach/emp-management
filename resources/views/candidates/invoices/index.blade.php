@@ -27,11 +27,18 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
 <div class="container mt-2">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Candidate Invoices</h3>
         <a href="{{ route('candidates.invoices.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i>Create Invoice
         </a>
+    </div>
+
+    <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary">Candidate Invoices</h3>
+            <a href="{{ route('candidates.invoices.create') }}">
+                <i class="bi bi-plus-circle fs-5"></i>
+            </a>
     </div>
 
     <!-- Toast Messages -->
@@ -95,19 +102,19 @@
                                 <span class="badge bg-warning text-dark">{{ ucfirst($invoice->status) }}</span>
                                 @endif
                             </td>
-                            <td>
-                                <div class="d-flex gap-2 flex-wrap">
+                            <td class="text-nowrap">
+                                <div class="d-flex gap-2">
                                     <a href="{{ route('candidates.invoices.show', $invoice->id) }}" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-eye"></i> View
+                                        <i class="bi bi-eye"></i>
                                     </a>
                                     <a href="{{ route('candidates.invoices.edit', $invoice->id) }}" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square"></i> Edit
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
                                     <form action="{{ route('candidates.invoices.destroy', $invoice->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this candidate?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm">
-                                            <i class="bi bi-trash"></i> Delete
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
 
