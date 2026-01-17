@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Notifications\TaskAssignedNotification;
 
 class TaskController extends Controller
 {
@@ -32,9 +33,9 @@ class TaskController extends Controller
                 ->get();
         } else {
             $tasks = Task::where('created_by', $user->id)
-                ->orWhereJsonContains('assigned_to', (string) $user->id)
-                ->orderByDesc('id')
-                ->get();
+            ->latest()
+            ->get();
+
         }
 
         // echo "<pre>";
@@ -46,46 +47,37 @@ class TaskController extends Controller
 
     public function submitedtask()
     {
-        // $tasks = Task::join('users', 'tasks.assigned_to', '=', 'users.id')
-        //     ->select(
-        //         'tasks.*',
-        //         'users.name as employee_name',
-        //         'users.email as employee_email',
-        //         'users.empuniq_id'
-        //     )
-        //     ->orderByDesc('tasks.id')
-        //     ->where('created_by', Auth::id())
-        //     ->orWhere('assigned_to', Auth::id())
-        //     ->Where('status', 'Submitted')
-        //     ->latest()->get();
-
-
         $user = Auth::user();
 
         if ($user->role === 'employee') {
-            $tasks = Task::Where('status', 'Submitted')
-                ->whereJsonContains('assigned_to', (string) $user->id)
+
+            // Employee sees only tasks assigned to them AND submitted
+            $tasks = Task::with('users')
+                ->where('status', 'Submitted')
+                ->whereHas('users', function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                })
                 ->orderByDesc('id')
                 ->get();
+
         } else {
-            // $tasks = Task::Where('status', 'Submitted')
-            //     ->where('created_by', $user->id)
-            //     ->orWhereJsonContains('assigned_to', (string) $user->id)
-            //     ->orderByDesc('id')
-            //     ->get();
-            $tasks = Task::where('status', 'Submitted')
-                ->where(function ($query) use ($user) {
-                    $query->where('created_by', $user->id)
-                        ->orWhereJsonContains('assigned_to', (string) $user->id);
+
+            // Employer sees:
+            // 1. Tasks they created
+            // 2. Tasks assigned to them
+            // AND status = Submitted
+            $tasks = Task::with('users')
+                ->where('status', 'Submitted')
+                ->where(function ($q) use ($user) {
+                    $q->where('created_by', $user->id)
+                    ->orWhereHas('users', function ($q2) use ($user) {
+                        $q2->where('users.id', $user->id);
+                    });
                 })
                 ->orderByDesc('id')
                 ->get();
         }
 
-
-        // echo "<pre>";
-        // print_r($tasks);
-        // die;
         return view('employer.tasks.Submitedtask', compact('tasks'));
     }
 
@@ -100,13 +92,13 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'title' => 'required|string',
             'description' => 'nullable|string',
             'priority' => 'required|in:Low,Medium,High',
             'status' => 'required|in:Not Started,In Progress,Completed,Blocked',
-            'assigned_to' => 'required|exists:users,id',
+            'assigned_to' => 'required|array',
+            'assigned_to.*' => 'exists:users,id',
             'role' => 'required|in:Owner,Reviewer,Collaborator',
             'start_date' => 'nullable|date',
             'due_date' => 'nullable|date|after_or_equal:start_date',
@@ -116,19 +108,13 @@ class TaskController extends Controller
         $path = null;
 
         if ($request->hasFile('attachments')) {
-            $pdf = $request->file('attachments');
-            // Generate a unique filename
-            $pdfName = time() . '_' . uniqid() . '.' . $pdf->getClientOriginalExtension();
-            // Move the file to the public/uploads/tasks directory
-            $pdf->move(public_path('uploads/tasks'), $pdfName);
-            // Store the relative file path
-            $path = 'uploads/tasks/' . $pdfName;
+            $file = $request->file('attachments');
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/tasks'), $fileName);
+            $path = 'uploads/tasks/' . $fileName;
         }
 
-        // echo "<pre>";
-        // print_r($request->all());
-        // die;
-
+        // ✅ Create Task (NO assigned_to column here)
         $task = Task::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -138,14 +124,22 @@ class TaskController extends Controller
             'due_date' => $request->due_date,
             'created_by' => Auth::id(),
             'assigned_by' => Auth::id(),
-            'assigned_to' => $request->assigned_to,
-            //'assigned_to' => json_encode($request->assigned_to),
             'role' => $request->role,
-            'file_path' => isset($path) ? $path : NULL,
+            'file_path' => $path,
         ]);
 
+        // ✅ Attach multiple students
+        $task->users()->attach($request->assigned_to);
 
-        return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+        // ✅ Send notification to each student
+        $students = User::whereIn('id', $request->assigned_to)->get();
+
+        foreach ($students as $student) {
+            $student->notify(new TaskAssignedNotification($task));
+        }
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task assigned to students successfully.');
     }
 
     // Show the form to edit an existing employee

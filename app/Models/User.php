@@ -72,4 +72,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Designation::class, 'designation_id');
     }
+
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class);
+    }
 }

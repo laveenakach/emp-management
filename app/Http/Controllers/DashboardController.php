@@ -22,33 +22,37 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // print_r('hhh');
-        // die;
+        $user = Auth::user();
+
         return view('dashboard.employee', [
-            'myAttendances' => Attendances::where('employee_id', Auth::user()->id)->count(),
-            'Leavesrequest' => EmployeeLeave::where('user_id', Auth::user()->id)->count(),
-            'salarySlips' => SalarySlip::where('employee_id', Auth::user()->id)->count(),
-            $user = Auth::user(),
-            'taskManagement' => Task::whereJsonContains('assigned_to', (string) $user->id)
-                ->orderByDesc('id')
+            'myAttendances' => Attendances::where('employee_id', $user->id)->count(),
+            'Leavesrequest' => EmployeeLeave::where('user_id', $user->id)->count(),
+            'salarySlips' => SalarySlip::where('employee_id', $user->id)->count(),
+
+            // ✅ TASKS ASSIGNED TO EMPLOYEE
+            'taskManagement' => Task::whereHas('users', function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                })
                 ->count(),
 
-            'taskSubmited' => Task::Where('status', 'Submitted')
-                ->whereJsonContains('assigned_to', (string) $user->id)
-                ->orderByDesc('id')
+            // ✅ SUBMITTED TASKS ASSIGNED TO EMPLOYEE
+            'taskSubmited' => Task::where('status', 'Submitted')
+                ->whereHas('users', function ($q) use ($user) {
+                    $q->where('users.id', $user->id);
+                })
                 ->count(),
 
-            'letters' => EmployeeLetter::where('employee_id',$user->id)->with('employee')->count(), 
+            'letters' => EmployeeLetter::where('employee_id', $user->id)->count(),
 
-            'notifications' => Notification::orderBy('id', 'desc')->paginate(3), // Fetch all notifications
+            // (Optional improvement below 👇)
+            'notifications' => Notification::orderBy('id', 'desc')->paginate(3),
         ]);
     }
 
     public function employerindex()
     {
-        $myAttendances = Attendances::where('employee_id', Auth::user()->id)->count();
-        // print_r($myAttendances);
-        // die;
+        $user = Auth::user();
+
         return view('dashboard.employer', [
             'employeecount' => User::where('role', 'employee')->count(),
             'myAttendances' => Attendances::count(),
@@ -59,11 +63,13 @@ class DashboardController extends Controller
             'Quotation' => Quotation::count(),
             'Invoice' => Invoice::count(),
 
-            $user = Auth::user(),
-
-            'taskManagement' => Task::where('created_by', $user->id)
-                ->orWhereJsonContains('assigned_to', (string) $user->id)
-                ->orderByDesc('id')
+            // ✅ FIXED TASK COUNT
+            'taskManagement' => Task::where(function ($query) use ($user) {
+                    $query->where('created_by', $user->id)
+                        ->orWhereHas('users', function ($q) use ($user) {
+                            $q->where('users.id', $user->id);
+                        });
+                })
                 ->count(),
         ]);
     }

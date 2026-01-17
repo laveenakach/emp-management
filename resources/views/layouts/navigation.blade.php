@@ -5,6 +5,9 @@
         <span class="navbar-brand">Welcome, {{ Auth::user()->name }}!</span>
 
         <div class="d-flex align-items-center">
+            <a href="{{ route('notifications.index') }}">
+                <i class="bi bi-bell fs-4 me-2"></i>
+            </a>
             <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary me-2">
                 <i class="bi bi-person-circle"></i> Profile
             </a>

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\User;
 
 class Task extends Model
 {
@@ -47,4 +48,10 @@ class Task extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
 }

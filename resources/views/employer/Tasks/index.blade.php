@@ -139,8 +139,9 @@
                     <tbody>
                         @foreach($tasks as $task)
                         @php
-                        $assignedUsers = $task->assigned_to; // No json_decode needed
+                        $assignedUsers = $task->users; // Collection of User models
                         @endphp
+
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $task->title }}</td>
@@ -151,35 +152,31 @@
 
                             {{-- Assigned Users --}}
                             <td>
-                                @foreach($assignedUsers as $index => $userId)
-                                @php $user = \App\Models\User::find($userId); @endphp
-                                @if($user)
-                                {{ $user->name }}{{ $index !== count($assignedUsers) - 1 ? ',' : '' }}<br>
-                                @endif
-                                @endforeach
+                                 @forelse($task->users as $user)
+                                    {{ $user->name }}<br>
+                                @empty
+                                    <span class="text-muted">Not Assigned</span>
+                                @endforelse
                             </td>
 
                             <td class="text-nowrap">
                                 <div class="d-flex gap-2">
-                                    {{-- Show button only if the logged-in employee is assigned --}}
-                                    @if(auth()->user()->role === 'employee' || in_array(auth()->id(), $assignedUsers))
-                                    <button
-                                        class="btn btn-sm btn-success"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#submitTaskModal"
-                                        data-task-id="{{ $task->id }}"
-                                        data-task-title="{{ $task->title }}"
-                                        data-task-status="{{ $task->status }}">
+
+                                    @if(
+                                        auth()->user()->role === 'employee' &&
+                                        $task->users->contains('id', auth()->id())
+                                    )
+                                    <button class="btn btn-sm btn-success">
                                         <i class="bi bi-send-check"></i> Submit Task
                                     </button>
                                     @endif
 
-                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary d-flex align-items-center gap-1">
+                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary">
                                         <i class="bi bi-chat-dots-fill"></i> View
                                     </a>
 
-                                    @if(auth()->user()->id === $task->created_by)
-                                    <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
+                                    @if(auth()->id() === $task->created_by)
+                                        <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
                                         <i class="bi bi-pencil-square"></i> Edit
                                     </a>
 
