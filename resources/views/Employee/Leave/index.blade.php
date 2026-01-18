@@ -2,6 +2,39 @@
 
 @section('content')
 <style>
+    .card-body {
+        overflow-x: hidden;
+        }
+        /* Fix DataTables Bootstrap row overflow */
+        .dataTables_wrapper .row {
+            margin-left: 0;
+            margin-right: 0;
+            }
+        .dataTables_paginate {
+            white-space: normal !important;
+            }
+
+        /* Prevent overflow from DataTables */
+    .dataTables_wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Keep pagination inside card */
+    .dataTables_paginate {
+        float: right !important;
+        margin-top: 10px;
+    }
+
+    /* Fix buttons alignment */
+    .dt-buttons {
+        margin-bottom: 10px;
+    }
+
+    /* Table must not exceed container */
+    table.dataTable {
+        width: 100% !important;
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -72,7 +105,7 @@
     <div class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-            <table id="leaveTable" class="table table-hover table-bordered nowrap" style="width:100%;">
+            <table id="leaveTable" class="table table-hover table-bordered" style="width:100%;">
                 <thead class="table-dark">
                     <tr>
                         <th>Sr. No</th>
@@ -181,9 +214,12 @@
 <script>
     $(document).ready(function() {
         $('#leaveTable').DataTable({
-            dom: 'Bfrtip',
+            dom: '<"row mb-2"<"col-md-6"B><"col-md-6 text-end"f>>' +
+             '<"row"<"col-12"tr>>' +
+             '<"row mt-2"<"col-md-5"i><"col-md-7"p>>',
             buttons: ['excelHtml5'],
             pageLength: 10,
+            responsive: true
             // scrollX: true,
             // scrollY: true,
         });
