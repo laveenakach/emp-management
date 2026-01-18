@@ -76,6 +76,24 @@
         main {
             min-height: 100vh;
         }
+        @media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1050;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+}
+
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -86,16 +104,20 @@
 <div id="sidebarOverlay" class="sidebar-overlay d-md-none"></div>
 
     <!-- Navbar for mobile toggle -->
-    <nav class="navbar navbar-light bg-light d-md-none">
-        <div class="container-fluid">
-            <button class="btn btn-primary" id="sidebarToggle">
-                <i class="bi bi-list"></i>
-            </button>
-        </div>
-    </nav>
+    <nav class="d-md-none bg-light shadow-sm">
+    <div class="d-flex align-items-center px-2 w-100"
+         style="height:56px;">
+
+        <button class="btn btn-primary me-2" id="sidebarToggle">
+            <i class="bi bi-list"></i>
+        </button>
+
+        @include('layouts.navigation-mobile')
+    </div>
+</nav> 
 
     <div class="container-fluid">
-        <div class="row flex-nowrap">
+        <div class="row">
 
             <!-- Sidebar -->
             <div id="sidebar" class="col-auto p-0 sidebar">

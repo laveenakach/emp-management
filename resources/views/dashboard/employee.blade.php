@@ -49,7 +49,7 @@
 
 <div class="container mt-4">
     <!-- Profile Section -->
-    <div class="row align-items-center mb-4">
+    <div class="d-none d-md-flex row align-items-center mb-4">
         <div class="col-md-2 text-center">
             <img src="{{ asset('uploads/profile_photos/' . auth()->user()->photo) }}"
                 alt="Profile Photo"
@@ -61,6 +61,22 @@
             <p class="text-muted">Here's your dashboard overview.</p>
         </div>
     </div>
+
+    <!-- MOBILE PROFILE (INLINE PHOTO + TEXT) -->
+<div class="d-md-none mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <img src="{{ asset('uploads/profile_photos/' . auth()->user()->photo) }}"
+            alt="Profile Photo"
+            class="rounded-circle shadow"
+            style="width: 50px; height: 50px; object-fit: cover;">
+
+        <div>
+            <h5 class="mb-0">Welcome, {{ auth()->user()->name }} 👋</h5>
+            <small class="text-muted">Dashboard overview</small>
+        </div>
+    </div>
+</div>
+
 
     <!-- Dashboard Cards -->
     <div class="row g-3">

@@ -3,7 +3,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
+<nav class="d-none d-md-flex gap-2 navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
     <div class="container-fluid">
         <span class="navbar-brand">Welcome, {{ Auth::user()->name }}!</span>
 
@@ -83,3 +83,41 @@
         </div>
     </div>
 </nav>
+
+<!-- <nav class="d-md-none bg-light shadow-sm mb-4">
+    <div class="d-flex align-items-center justify-content-between px-2"
+         style="min-height: 56px; flex-wrap: nowrap;">
+
+        <div class="fw-semibold text-dark ms-5 text-truncate"
+             style="max-width: 55%;">
+            Welcome, {{ Auth::user()->name }}!
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+
+            <button class="btn position-relative p-1">
+                <i class="bi bi-bell fs-5"></i>
+
+                @if(auth()->user()->unreadNotifications->count() > 0)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                          style="font-size: 0.6rem;">
+                        {{ auth()->user()->unreadNotifications->count() }}
+                    </span>
+                @endif
+            </button>
+
+            <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm px-2">
+                <i class="bi bi-person"></i>
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="btn btn-outline-danger btn-sm px-2">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav> -->
+
+
