@@ -125,6 +125,11 @@ Route::middleware(['auth', 'role:employer'])->group(function () {
     Route::put('employer/notifications/update/{id}', [NotificationController::class, 'update'])->name('employer.notifications.update');
     Route::delete('employer/notifications/delete/{id}', [NotificationController::class, 'destroy'])->name('employer.notifications.delete');
 
+    Route::get('/notifications/read/{id}', [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
+
+    Route::get('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])
+        ->name('notifications.markAllRead');
 
     Route::prefix('accounts')->name('accounts.')->group(function () {
         Route::resource('clients', \App\Http\Controllers\Account\ClientController::class);

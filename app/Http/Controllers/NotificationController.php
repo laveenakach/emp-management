@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Notification;
-
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = Notification::latest()->get();
+        $notifications = auth()->user()->notifications()->latest()->get();
+
         return view('employer.Notification.index', compact('notifications'));
     }
 
@@ -106,5 +107,24 @@ class NotificationController extends Controller
         $notification = Notification::findOrFail($id);
         $notification->delete();
         return redirect()->route('notifications.index')->with('success', 'Notification deleted.');
+    }
+
+    public function markRead($id)
+    {
+        $notification = Auth::user()
+            ->notifications()
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $notification->markAsRead();
+
+        return back();
+    }
+
+    public function markAllRead()
+    {
+        Auth::user()->unreadNotifications->markAsRead();
+
+        return back();
     }
 }

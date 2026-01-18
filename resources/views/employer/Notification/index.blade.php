@@ -78,40 +78,43 @@
                         <th>Sr no</th>
                         <th>Title</th>
                         <th>Description</th>
-                        <th>Date</th>
-                        <th>Attachment</th>
-                        <th>Action</th>
+                        <th>Notification Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($notifications as $notifi)
+                    @foreach ($notifications as $notification)
                     <tr>
-                        <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
-                        <td>{{ $notifi->title}}</td>
-                        <td>{{ $notifi->description}}</td>
-                        <td>{{ \Carbon\Carbon::parse($notifi->date)->format('d M, Y') }}</td>
+                        <td>{{ $loop->iteration }}</td>
+
+                        {{-- Title from JSON --}}
+                        <td>{{ $notification->data['title'] ?? '-' }}</td>
+
+                        {{-- Message from JSON --}}
+                        <td>{{ $notification->data['message'] ?? '-' }}</td>
+
+                        {{-- Notification Created Date --}}
+                        <td>{{ $notification->created_at->format('d M, Y h:i A') }}</td>
+
+                        {{-- Due Date from JSON --}}
                         <td>
-                            <a href="{{ asset($notifi->attachment) }}" class="btn btn-sm btn-outline-info" target="_blank">
-                                <i class="bi bi-file-earmark-pdf"></i> View Attachment
-                            </a>
+                            @if(isset($notification->data['due_date']))
+                                {{ \Carbon\Carbon::parse($notification->data['due_date'])->format('d M, Y') }}
+                            @else
+                                -
+                            @endif
                         </td>
+
                         <td>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <a href="{{ route('employer.notifications.edit', $notifi->id) }}" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                                <form action="{{ route('employer.notifications.delete', $notifi->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </form>
-                            </div>
+                            <span class="badge bg-{{ $notification->read_at ? 'secondary' : 'success' }}">
+                                {{ $notification->read_at ? 'Read' : 'Unread' }}
+                            </span>
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
+
             </table>
             </div>
         </div>
