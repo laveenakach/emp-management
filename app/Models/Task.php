@@ -30,7 +30,8 @@ class Task extends Model
     ];
 
     protected $casts = [
-        'assigned_to' => 'array',
+        'start_date' => 'date',
+        'due_date'   => 'date',
     ];
 
     public function assignedUser()

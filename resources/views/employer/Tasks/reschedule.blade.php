@@ -26,16 +26,16 @@
 
                         <div class="mb-3">
                             <label class="form-label">Start Date</label>
-                            <input type="datetime-local" name="start_date" class="form-control"
-                                value="{{ old('start_date', \Carbon\Carbon::parse($task->start_date)->format('Y-m-d\TH:i')) }}"
+                            <input type="date" name="start_date" class="form-control"
+                                value="{{ old('start_date', optional($task->start_date)->format('Y-m-d')) }}"
                                 required>
                             @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Due Date</label>
-                            <input type="datetime-local" name="due_date" class="form-control"
-                                value="{{ old('due_date', \Carbon\Carbon::parse($task->due_date)->format('Y-m-d\TH:i')) }}"
+                            <input type="date" name="due_date" class="form-control"
+                                value="{{ old('due_date', optional($task->due_date)->format('Y-m-d')) }}"
                                 required>
                             @error('due_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>

@@ -96,7 +96,8 @@
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Start Date <span class="text-danger">*</span></label>
                                 <input type="date" name="start_date" class="form-control"
-                                    value="{{ old('start_date', isset($task->start_date) ? \Carbon\Carbon::parse($task->start_date)->format('Y-m-d\TH:i') : '') }}"
+                                    value="{{ old('start_date', optional($task->start_date)->format('Y-m-d')) }}"
+
                                     required>
                                  @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
@@ -134,7 +135,7 @@
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Due Date <span class="text-danger">*</span></label>
                                 <input type="date" name="due_date" class="form-control"
-                                    value="{{ old('due_date', isset($task->due_date) ? \Carbon\Carbon::parse($task->due_date)->format('Y-m-d\TH:i') : '') }}"
+                                    value="{{ old('due_date', optional($task->due_date ?? null)->format('Y-m-d')) }}"
                                     required>
                                 @error('due_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
@@ -169,8 +170,11 @@
                             </div> -->
 
                             <!-- Assign User -->
-                            @php
-                            $assignedTo = old('assigned_to', isset($task) ? $task->assigned_to : []);
+                           @php
+                            $assignedTo = old(
+                                'assigned_to',
+                                isset($task) ? $task->users->pluck('id')->toArray() : []
+                            );
                             @endphp
 
                             <div class="mb-3 col-md-6">

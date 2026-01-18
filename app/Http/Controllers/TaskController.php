@@ -160,8 +160,8 @@ class TaskController extends Controller
 
         $task = Task::where('created_by', Auth::id())
             // ->orWhereJsonContains('assigned_to', Auth::id())
-            ->Where('id', $id)
-            ->first();
+            ->with('users')   // 👈 IMPORTANT
+            ->findOrFail($id);
 
         // echo"<pre>";
         // print_r($task);
