@@ -2,6 +2,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -57,39 +60,41 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="salarySlipsTable" class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Employee ID</th>
-                        <th>Month</th>
-                        <th>PDF</th>
-                        <th>Uploaded On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($salarySlips as $index => $slip)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $slip->empuniq_id}}</td>
-                        <td>{{ \Carbon\Carbon::parse($slip->month)->format('F Y') }}</td>
-                        <td>
-                            @if($slip->status == 'generated')
+            <div class="table-responsive">
+                <table id="salarySlipsTable" class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee ID</th>
+                            <th>Month</th>
+                            <th>PDF</th>
+                            <th>Uploaded On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($salarySlips as $index => $slip)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $slip->empuniq_id}}</td>
+                            <td>{{ \Carbon\Carbon::parse($slip->month)->format('F Y') }}</td>
+                            <td>
+                                @if($slip->status == 'generated')
 
-                            <a href="{{ route('salary_slips.download', $slip->id) }}" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-download me-1"></i> Download PDF
-                            </a>
-                            @else
-                            <a href="{{ asset($slip->file_path) }}" class="btn btn-sm btn-outline-info" target="_blank">
-                                <i class="bi bi-file-earmark-pdf"></i> View uploaded PDF
-                            </a>
-                            @endif
-                        </td>
-                        <td>{{ $slip->created_at->format('d M Y') }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                                <a href="{{ route('salary_slips.download', $slip->id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-download me-1"></i> Download PDF
+                                </a>
+                                @else
+                                <a href="{{ asset($slip->file_path) }}" class="btn btn-sm btn-outline-info" target="_blank">
+                                    <i class="bi bi-file-earmark-pdf"></i> View uploaded PDF
+                                </a>
+                                @endif
+                            </td>
+                            <td>{{ $slip->created_at->format('d M Y') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

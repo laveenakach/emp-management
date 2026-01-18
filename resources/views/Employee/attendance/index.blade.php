@@ -3,6 +3,9 @@
 
 @section('content')
 <style>
+    div.dataTables_wrapper .dataTables_filter {
+        margin-bottom: 10px; /* space above search */
+    }
     .btn-outline-warning.custom-hover:hover {
         background-color: #66fdee !important;
         /* Your desired hover color */
@@ -58,43 +61,45 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <table id="attendanceTable" class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Name</th>
-                        <th>Date</th>
-                        <th>Chack In</th>
-                        <th>Chack Out</th>
-                        <!-- <th>Actions</th> -->
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($attendancelist as $attendance_list)
-                    <tr>
-                        <td>{{ $attendance_list->user_name }}</td>
-                        <td>{{ \Carbon\Carbon::parse($attendance_list->date)->format('d F, Y') }}</td>
-                        <td>
-                            {{ $attendance_list->check_in ? \Carbon\Carbon::parse($attendance_list->check_in)->format('h:i A') : '-' }}
-                        </td>
-                        <td>
-                            {{ $attendance_list->check_out ? \Carbon\Carbon::parse($attendance_list->check_out)->format('h:i A') : '-' }}
-                        </td>
+            <div class="table-responsive">
+                <table id="attendanceTable" class="table table-hover table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Chack In</th>
+                            <th>Chack Out</th>
+                            <!-- <th>Actions</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($attendancelist as $attendance_list)
+                        <tr>
+                            <td>{{ $attendance_list->user_name }}</td>
+                            <td>{{ \Carbon\Carbon::parse($attendance_list->date)->format('d F, Y') }}</td>
+                            <td>
+                                {{ $attendance_list->check_in ? \Carbon\Carbon::parse($attendance_list->check_in)->format('h:i A') : '-' }}
+                            </td>
+                            <td>
+                                {{ $attendance_list->check_out ? \Carbon\Carbon::parse($attendance_list->check_out)->format('h:i A') : '-' }}
+                            </td>
 
-                        <!-- <td>
-                    <div style="display: flex; gap: 5px;">
-                        <a href="{{ route('employer.attendance.edit', $attendance_list->id) }}" class="btn btn-warning btn-sm">Edit/Assign Department</a>
+                            <!-- <td>
+                        <div style="display: flex; gap: 5px;">
+                            <a href="{{ route('employer.attendance.edit', $attendance_list->id) }}" class="btn btn-warning btn-sm">Edit/Assign Department</a>
 
-                        <form action="{{ route('employer.attendance.delete', $attendance_list->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    </div>
-                </td> -->
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            <form action="{{ route('employer.attendance.delete', $attendance_list->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td> -->
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

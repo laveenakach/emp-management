@@ -31,17 +31,21 @@
 <div class="container mt-2">
     <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
         <h3 class="fw-bold text-primary">Notifications</h3>
+        @if(auth()->user()->role === 'employer')
         <a href="{{ route('notifications.create') }}" class="btn rounded-pill px-4 shadow-sm add-btn">
             <i class="bi bi-plus-circle me-2"></i>Create Notification
         </a>
+        @endif
         </a>
     </div>
 
     <div class="d-flex d-md-none justify-content-between align-items-center mb-3">
         <h3 class="fw-bold text-primary">Notifications</h3>
+        @if(auth()->user()->role === 'employer')
             <a href="{{ route('notifications.create') }}">
                 <i class="bi bi-plus-circle fs-5"></i>
             </a>
+        @endif
     </div>
 
     <!-- Toast Messages -->
