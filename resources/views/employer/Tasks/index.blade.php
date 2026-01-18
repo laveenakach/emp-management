@@ -132,7 +132,9 @@
                             <th>Status</th>
                             <th>Start Date</th>
                             <th>Due Date</th>
+                            @if(auth()->user()->role === 'employer')
                             <th>Assigned To</th>
+                            @endif
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -151,6 +153,7 @@
                             <td>{{ \Carbon\Carbon::parse($task->due_date)->format('d M Y, h:i A') }}</td>
 
                             {{-- Assigned Users --}}
+                            @if(auth()->user()->role === 'employer')
                             <td>
                                  @forelse($task->users as $user)
                                     {{ $user->name }}<br>
@@ -158,6 +161,7 @@
                                     <span class="text-muted">Not Assigned</span>
                                 @endforelse
                             </td>
+                            @endif
 
                             <td class="text-nowrap">
                                 <div class="d-flex gap-2">
@@ -171,13 +175,13 @@
                                     </button>
                                     @endif
 
-                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-primary">
-                                        <i class="bi bi-chat-dots-fill"></i> View
+                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
                                     </a>
 
                                     @if(auth()->id() === $task->created_by)
                                         <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
-                                        <i class="bi bi-pencil-square"></i> Edit
+                                        <i class="bi bi-pencil-square"></i>
                                     </a>
 
                                     <a href="{{ route('tasks.reschedule.form', $task->id) }}" class="btn btn-sm btn-success d-flex align-items-center gap-1">
@@ -188,7 +192,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-trash3"></i> Delete
+                                            <i class="bi bi-trash3"></i>
                                         </button>
                                     </form>
                                     @endif

@@ -28,9 +28,11 @@ class TaskController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'employee') {
-            $tasks = Task::whereJsonContains('assigned_to', (string) $user->id)
-                ->orderByDesc('id')
-                ->get();
+            $tasks = Task::whereHas('users', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            })
+            ->orderByDesc('id')
+            ->get();
         } else {
             $tasks = Task::where('created_by', $user->id)
             ->latest()
