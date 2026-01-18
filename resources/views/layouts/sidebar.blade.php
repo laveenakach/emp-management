@@ -22,59 +22,62 @@
         @if(auth()->user()->role == 'employee')
         <li class="nav-item">
             <a href="{{ route('dashboard.employee') }}" class="nav-link {{ request()->is('dashboard') ? 'active' : 'text-white' }}">
-                <i class="bi bi-speedometer2"></i> Dashboard
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
         </li>
         <li>
             <a href="{{ route('employee.attendance') }}" class="nav-link text-white">
-                <i class="bi bi-calendar-check"></i> My Attendance
+                <i class="bi bi-calendar-check me-2"></i> My Attendance
             </a>
         </li>
         <li>
             <a href="{{ route('employee.salary-slips.index') }}" class="nav-link text-white">
-                <i class="bi bi-cash-coin"></i> My Salary Slips
+                <i class="bi bi-cash-coin me-2"></i> My Salary Slips
             </a>
         </li>
         <li>
             <a href="{{ route('employee.leaves.index') }}" class="nav-link text-white">
-                <i class="bi bi-clipboard-data"></i> Leave Requests
+                <i class="bi bi-clipboard-data me-2"></i> Leave Requests
             </a>
         </li>
         <li class="nav-item">
             <a href="{{ route('letters.index') }}" class="nav-link text-white">
-                <i class="bi bi-envelope-plus"></i> Offer/Appointment letters
+                <i class="bi bi-envelope-plus me-2"></i> Offer/Appointment letters
             </a>
         </li>
 
-        <li class="nav-item">
-            <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                data-bs-toggle="collapse"
-                href="#taskSubMenu"
-                role="button"
-                aria-expanded="false"
-                aria-controls="taskSubMenu">
-                <span><i class="bi bi-card-checklist me-2"></i> Task Management</span>
-                <i class="bi bi-chevron-down toggle-icon"></i>
+        <li class="nav-item has-submenu">
+            <!-- <a href="#" class="nav-link text-white">
+                <i class="bi bi-cash-coin me-2"></i>Task Management
+                <i class="bi bi-chevron-down float-end"></i>
+            </a> -->
+            <a class="nav-link text-white"
+            href="#taskSubMenu"
+            role="button"
+            aria-expanded="false"
+            aria-controls="taskSubMenu">
+                <i class="bi bi-card-checklist me-2"></i>
+                <span>Task Management</span>
+                <i class="bi bi-chevron-down menu-arrow"></i>
             </a>
-            <div class="collapse" id="taskSubMenu">
-                <ul class="nav flex-column ms-3 mt-1">
-                    <li class="nav-item">
-                        <a href="{{ route('tasks.index') }}" class="nav-link text-white">
-                            <i class="bi bi-list-check me-2"></i>All Tasks
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('tasks.submitedtask') }}" class="nav-link text-white">
-                            <i class="bi bi-check2-square"></i> Submitted Task
-                        </a>
-                    </li>
-                </ul>
-            </div>
+
+            <ul class="submenu collapse">
+                <li class="nav-item">
+                    <a href="{{ route('tasks.index') }}" class="nav-link text-white">
+                        <i class="bi bi-list-check me-2"></i> All Tasks
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('tasks.submitedtask') }}" class="nav-link text-white">
+                        <i class="bi bi-check2-square me-2"></i> Submitted Task
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li>
             <a href="{{ route('notifications.index') }}" class="nav-link text-white">
-                <i class="bi bi-bell"></i> Notifications
+                <i class="bi bi-bell me-2"></i> Notifications
             </a>
         </li>
 
@@ -82,41 +85,55 @@
         @elseif(auth()->user()->role == 'employer')
         <li class="nav-item">
             <a href="{{ route('dashboard.employer') }}" class="nav-link {{ request()->is('dashboard') ? 'active' : 'text-white' }}">
-                <i class="bi bi-speedometer2"></i> Dashboard
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
             </a>
         </li>
 
 
         <li class="nav-item has-submenu">
-            <a href="#" class="nav-link text-white">
+            <!-- <a href="#" class="nav-link text-white">
                 <i class="bi bi-people me-2"></i>Employee Management
                 <i class="bi bi-chevron-down float-end"></i>
+            </a> -->
+            <a class="nav-link text-white"
+            href="#"
+            role="button"
+            aria-expanded="false">
+                <i class="bi bi-people me-2"></i>
+                <span>Employee Management</span>
+                <i class="bi bi-chevron-down menu-arrow"></i>
             </a>
-            <ul class="submenu collapse">
+
+            <ul class="submenu collapse" id="empSubMenu">
                 <li class="nav-item">
                     <a href="{{ route('employer.employees.index') }}" class="nav-link text-white">
-                        <i class="bi bi-people"></i> Employee
+                        <i class="bi bi-people me-2"></i>
+                        <span>Employee</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('employer.attendance') }}" class="nav-link text-white">
-                        <i class="bi bi-calendar3"></i> Attendance
+                        <i class="bi bi-calendar3 me-2"></i>
+                        <span>Attendance</span>
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a href="{{ route('employee.leaves.index') }}" class="nav-link text-white">
-                        <i class="bi bi-file-earmark-text"></i> Leaves
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        <span>Leaves</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('employer.salary_slips.index') }}" class="nav-link text-white">
-                        <i class="bi bi-upload"></i> Upload Salary Slips
+                        <i class="bi bi-upload me-2"></i>
+                        <span>Upload Salary Slips</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('letters.index') }}" class="nav-link text-white">
-                        <i class="bi bi-upload"></i> Upload letters
+                        <i class="bi bi-upload me-2"></i>
+                        <span>Upload letters</span>
                     </a>
                 </li>
             </ul>
@@ -172,10 +189,20 @@
         </li> -->
 
         <li class="nav-item has-submenu">
-            <a href="#" class="nav-link text-white">
+            <!-- <a href="#" class="nav-link text-white">
                 <i class="bi bi-cash-coin me-2"></i>Task Management
                 <i class="bi bi-chevron-down float-end"></i>
+            </a> -->
+            <a class="nav-link text-white"
+            href="#taskSubMenu"
+            role="button"
+            aria-expanded="false"
+            aria-controls="taskSubMenu">
+                <i class="bi bi-card-checklist me-2"></i>
+                <span>Task Management</span>
+                <i class="bi bi-chevron-down menu-arrow"></i>
             </a>
+
             <ul class="submenu collapse">
                 <li class="nav-item">
                     <a href="{{ route('tasks.index') }}" class="nav-link text-white">
@@ -184,17 +211,26 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('tasks.submitedtask') }}" class="nav-link text-white">
-                        <i class="bi bi-check2-square"></i> Submitted Task
+                        <i class="bi bi-check2-square me-2"></i> Submitted Task
                     </a>
                 </li>
             </ul>
         </li>
 
         <li class="nav-item has-submenu">
-            <a href="#" class="nav-link text-white">
+            <!-- <a href="#" class="nav-link text-white">
                 <i class="bi bi-cash-coin me-2"></i> Accounts Management
                 <i class="bi bi-chevron-down float-end"></i>
+            </a> -->
+            <a class="nav-link text-white"
+            href="#"
+            role="button"
+            aria-expanded="false">
+                <i class="bi bi-cash-coin me-2"></i>
+                <span>Accounts Management</span>
+                <i class="bi bi-chevron-down menu-arrow"></i>
             </a>
+
             <ul class="submenu collapse">
                 <li>
                     <a href="{{ route('accounts.clients.index') }}" class="nav-link text-white">
@@ -225,10 +261,19 @@
         </li>
 
         <li class="nav-item has-submenu">
-            <a href="#" class="nav-link text-white">
+            <!-- <a href="#" class="nav-link text-white">
                 <i class="bi bi-person-badge-fill me-2"></i> Candidate Admission
                 <i class="bi bi-chevron-down float-end"></i>
+            </a> -->
+            <a class="nav-link text-white"
+            href="#"
+            role="button"
+            aria-expanded="false">
+                <i class="bi bi-person-badge-fill me-2"></i>
+                <span>Candidate Admission</span>
+                <i class="bi bi-chevron-down menu-arrow"></i>
             </a>
+
             <ul class="submenu collapse">
                 <li>
                     <a href="{{ route('candidates.index') }}" class="nav-link text-white">
@@ -245,7 +290,7 @@
 
         <li>
             <a href="{{ route('notifications.index') }}" class="nav-link text-white">
-                <i class="bi bi-bell"></i> Notifications
+                <i class="bi bi-bell me-2"></i> Notifications
             </a>
         </li>
 
@@ -274,7 +319,6 @@
 
         <li class="nav-item">
             <a class="nav-link text-white d-flex justify-content-between align-items-center"
-                data-bs-toggle="collapse"
                 href="#taskSubMenu"
                 role="button"
                 aria-expanded="false"
@@ -291,7 +335,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('tasks.submitedtask') }}" class="nav-link text-white">
-                            <i class="bi bi-check2-square"></i> Submitted Task
+                            <i class="bi bi-check2-square me-2"></i> Submitted Task
                         </a>
                     </li>
                 </ul>
