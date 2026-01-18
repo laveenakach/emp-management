@@ -4,13 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Notification;
+use App\Models\User;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
     public function index()
     {
-        $notifications = auth()->user()->notifications()->latest()->get();
+        $user = Auth::user();
+
+        if ($user->role === 'employer') {
+            // Admin-created notifications
+            $notifications = DatabaseNotification::latest()->get()->map(function ($n) {
+            // Fetch the actual receiver of the notification
+            $employee = User::find($n->notifiable_id);
+
+            $n->employee_name = $employee?->name ?? '—';
+
+            return $n;
+        });
+        } else {
+            // Task assigned & system notifications
+            $notifications = $user->notifications()->latest()->get();
+        }
 
         return view('employer.Notification.index', compact('notifications'));
     }

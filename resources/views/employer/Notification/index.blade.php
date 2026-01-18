@@ -76,6 +76,9 @@
                 <thead class="table-dark">
                     <tr>
                         <th>Sr no</th>
+                        @if(auth()->user()->role === 'employer')
+                            <th>Employee</th>
+                        @endif
                         <th>Title</th>
                         <th>Description</th>
                         <th>Notification Date</th>
@@ -87,7 +90,9 @@
                     @foreach ($notifications as $notification)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-
+                        @if(auth()->user()->role === 'employer')
+                            <td>{{ $notification->employee_name ?? '—' }}</td>
+                        @endif
                         {{-- Title from JSON --}}
                         <td>{{ $notification->data['title'] ?? '-' }}</td>
 

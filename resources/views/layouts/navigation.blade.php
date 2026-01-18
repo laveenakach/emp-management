@@ -35,11 +35,10 @@
                     <li class="dropdown-header d-flex justify-content-between align-items-center">
                         <span>Notifications</span>
                         <div class="d-flex gap-2">
-                        @if(auth()->user()->unreadNotifications->count())
                             <a href="{{ route('notifications.index') }}" class="text-primary">
                                 View All
                             </a>
-
+                        @if(auth()->user()->unreadNotifications->count())
                             <a href="{{ route('notifications.markAllRead') }}" class="text-primary">
                                 Mark all read
                             </a>

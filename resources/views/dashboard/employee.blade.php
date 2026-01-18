@@ -150,7 +150,7 @@
     </div>
 
     <!-- Notifications Section -->
-    <div class="mt-5">
+    <!-- <div class="mt-5">
         <h4 class="mb-4 text-primary">
             <i class="bi bi-bell-fill me-2"></i>Latest Notifications
         </h4>
@@ -177,11 +177,10 @@
         <div class="alert alert-info">No notifications at the moment.</div>
         @endforelse
 
-        <!-- Pagination -->
         <div class="d-flex justify-content-center mt-4">
             {{ $notifications->links('pagination::bootstrap-5') }}
         </div>
-    </div>
+    </div> -->
 
 </div>
 

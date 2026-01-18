@@ -205,6 +205,10 @@ Route::middleware(['auth', 'role:employee'])->group(function () {
 
     Route::get('/employee/salary-slips', [SalarySlipController::class, 'empoloyeeindex'])->name('employee.salary-slips.index');
     Route::get('/employee/salary-slips/download/{id}', [SalarySlipController::class, 'download'])->name('employee.salary-slips.download');
+    Route::get('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])
+        ->name('notifications.markAllRead');
+    Route::get('/notifications/read/{id}', [NotificationController::class, 'markRead'])
+        ->name('notifications.read');
 });
 
 

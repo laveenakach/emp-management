@@ -72,6 +72,13 @@
             </div>
         </li>
 
+        <li>
+            <a href="{{ route('notifications.index') }}" class="nav-link text-white">
+                <i class="bi bi-bell"></i> Notifications
+            </a>
+        </li>
+
+
         @elseif(auth()->user()->role == 'employer')
         <li class="nav-item">
             <a href="{{ route('dashboard.employer') }}" class="nav-link {{ request()->is('dashboard') ? 'active' : 'text-white' }}">
