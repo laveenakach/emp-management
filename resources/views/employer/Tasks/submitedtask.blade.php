@@ -81,6 +81,10 @@
                             <th>Title</th>
                             <th>Status</th>
                             <th>Progress/Work Details</th>
+                            @if(auth()->user()->role === 'employer')
+                            <th>Employee Name</th>
+                            <th>Total Working Time</th>
+                            @endif
                             <th>Submitted At</th>
                             <th>Submission file</th>
                             <th>Actions</th>
@@ -93,6 +97,28 @@
                             <td>{{ $task->title }}</td>
                             <td>{{ ucfirst($task->status) }}</td>
                             <td>{{ ucfirst($task->progress) }}</td>
+                            @if(auth()->user()->role === 'employer')
+                                {{-- Employee Name Column --}}
+                                <td>
+                                    @foreach($task->users as $user)
+                                        <div>{{ $user->name }}</div>
+                                    @endforeach
+                                </td>
+
+                                {{-- Working Time Column --}}
+                                <td>
+                                    @foreach($task->users as $user)
+                                        <div>
+                                            @if($user->pivot->worked_minutes)
+                                                {{ intdiv($user->pivot->worked_minutes, 60) }}h
+                                                {{ $user->pivot->worked_minutes % 60 }}m
+                                            @else
+                                                <span class="text-muted">—</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </td>
+                            @endif
                             <td>{{ \Carbon\Carbon::parse($task->submitted_at)->format('d M Y, h:i A') }}</td>
                             <td>
                                 <a href="{{ asset($task->submission_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
@@ -131,50 +157,7 @@
 </div>
 
 <!-- Submit Task Modal -->
-<div class="modal fade" id="submitTaskModal" tabindex="-1" aria-labelledby="submitTaskModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form id="submitTaskForm" method="POST" action="{{ route('tasks.submit') }}" enctype="multipart/form-data">
-            @csrf
-            <input type="hidden" name="task_id" id="modalTaskId">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="submitTaskModalLabel">Submit Task</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to submit the task: <strong id="taskTitle"></strong>?</p>
 
-                    <!-- Progress Update -->
-                    <div class="mb-3">
-                        <label for="progress" class="form-label">Progress / Work Details</label>
-                        <textarea name="progress" id="progress" class="form-control" rows="4" required>{{ old('progress') }}</textarea>
-                    </div>
-
-                    <!-- Upload Completed Work -->
-                    <div class="mb-3">
-                        <label for="submission_file" class="form-label">Upload File (Optional)</label>
-                        <input type="file" name="submission_file" id="submission_file" class="form-control">
-                    </div>
-
-                    <!-- Status -->
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select name="status" id="status" class="form-control" required>
-                            <option value="">-- Select Status --</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Submitted">Submitted</option>
-                            <!-- <option value="Completed">Completed</option> -->
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Submit Task</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 
 
 <script>

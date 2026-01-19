@@ -56,7 +56,15 @@
                         </div>
                         <div class="col-md-6">
                             <label class="fw-semibold text-muted">Assigned User</label>
-                            <div>{{ $task->assignedUser->name ?? '—' }}</div>
+                            @if($task->users && $task->users->count())
+                                <ul class="mb-0 ps-3">
+                                    @foreach($task->users as $user)
+                                        <li>{{ $user->name }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <div class="text-muted">—</div>
+                            @endif
                         </div>
                         <div class="col-md-6">
                             <label class="fw-semibold text-muted">Description</label>
