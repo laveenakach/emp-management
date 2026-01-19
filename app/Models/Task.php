@@ -19,19 +19,23 @@ class Task extends Model
         'title',
         'description',
         'priority',
+        'progress',
         'status',
         'start_date',
+        'submission_file',
+        'submitted_by',
+        'submitted_at',
         'due_date',
         'created_by',
-        'assigned_to',
         'assigned_by',
         'role',
         'file_path'
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'due_date'   => 'date',
+        'start_date' => 'datetime',
+        'due_date'   => 'datetime',
+        'submitted_at' => 'datetime',
     ];
 
     public function assignedUser()
@@ -52,7 +56,8 @@ class Task extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)
+            ->withPivot(['start_date', 'submitted_at', 'worked_minutes']);
     }
 
 }

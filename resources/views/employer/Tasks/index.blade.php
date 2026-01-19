@@ -166,11 +166,19 @@
                             <td class="text-nowrap">
                                 <div class="d-flex gap-2">
 
-                                    @if(
+                                   @if(
                                         auth()->user()->role === 'employee' &&
-                                        $task->users->contains('id', auth()->id())
+                                        $task->users->contains('id', auth()->id()) &&
+                                        $task->status !== 'Submitted'
                                     )
-                                    <button class="btn btn-sm btn-success">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#submitTaskModal"
+                                        data-task-id="{{ $task->id }}"
+                                        data-task-title="{{ $task->title }}"
+                                    >
                                         <i class="bi bi-send-check"></i> Submit Task
                                     </button>
                                     @endif
@@ -209,50 +217,50 @@
 </div>
 
 <!-- Submit Task Modal -->
-<div class="modal fade" id="submitTaskModal" tabindex="-1" aria-labelledby="submitTaskModalLabel" aria-hidden="true">
+<div class="modal fade" id="submitTaskModal" tabindex="-1">
     <div class="modal-dialog">
-        <form id="submitTaskForm" method="POST" action="{{ route('tasks.submit') }}" enctype="multipart/form-data">
+        <form id="submitTaskForm" method="POST" enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="task_id" id="modalTaskId">
             <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="submitTaskModalLabel">Submit Task</h5>
+                    <h5 class="modal-title">Submit Task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <p>Are you sure you want to submit the task: <strong id="taskTitle"></strong>?</p>
+                    <p>Are you sure you want to submit: <strong id="taskTitle"></strong>?</p>
 
-                    <!-- Progress Update -->
                     <div class="mb-3">
-                        <label for="progress" class="form-label">Progress / Work Details</label>
-                        <textarea name="progress" id="progress" class="form-control" rows="4" required>{{ old('progress') }}</textarea>
+                        <label class="form-label">Progress</label>
+                        <textarea name="progress" class="form-control" required></textarea>
                     </div>
 
-                    <!-- Upload Completed Work -->
                     <div class="mb-3">
-                        <label for="submission_file" class="form-label">Upload File (Optional)</label>
-                        <input type="file" name="submission_file" id="submission_file" class="form-control">
+                        <label class="form-label">Upload File</label>
+                        <input type="file" name="submission_file" class="form-control">
                     </div>
 
-                    <!-- Status -->
                     <div class="mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select name="status" id="status" class="form-control" required>
-                            <option value="">-- Select Status --</option>
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-control" required>
+                            <option value="">-- Select --</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Submitted">Submitted</option>
-                            <!-- <option value="Completed">Completed</option> -->
                         </select>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Submit Task</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
+
             </div>
         </form>
     </div>
 </div>
+
 
 
 <script>
@@ -314,4 +322,23 @@
         }, 7000); // Toast will disappear after 5 seconds
     });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('submitTaskModal');
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const taskId = button.getAttribute('data-task-id');
+        const taskTitle = button.getAttribute('data-task-title');
+
+        document.getElementById('taskTitle').textContent = taskTitle;
+
+        // ✅ THIS IS WHY IT WILL NOW WORK
+        document.getElementById('submitTaskForm').action =
+            `/tasks/${taskId}/submit`;
+    });
+});
+</script>
+
 @endsection

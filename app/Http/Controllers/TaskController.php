@@ -11,6 +11,20 @@ use App\Notifications\TaskAssignedNotification;
 
 class TaskController extends Controller
 {
+    private function getTimeSlots()
+    {
+        $slots = [];
+
+        for ($h = 1; $h <= 12; $h++) {
+            foreach (['00','15','30','45'] as $m) {
+                $slots[] = sprintf('%02d:%s AM', $h, $m);
+                $slots[] = sprintf('%02d:%s PM', $h, $m);
+            }
+        }
+
+        return $slots;
+    }
+
     public function index()
     {
         // $tasks = Task::join('users', 'tasks.assigned_to', '=', 'users.id')
@@ -85,11 +99,11 @@ class TaskController extends Controller
 
     public function create()
     {
-        $users = User::all();
+        $employees = User::whereNotIn('role', ['employer'])->get();
+        $task = null;
+        $timeSlots = $this->getTimeSlots();
 
-        $employees = User::whereNotIn('users.role', ['employer'])->get();
-
-        return view('employer.tasks.create', compact('users', 'employees'));
+        return view('employer.tasks.create', compact('employees', 'task', 'timeSlots'));
     }
 
     public function store(Request $request)
@@ -98,17 +112,19 @@ class TaskController extends Controller
             'title' => 'required|string',
             'description' => 'nullable|string',
             'priority' => 'required|in:Low,Medium,High',
-            'status' => 'required|in:Not Started,In Progress,Completed,Blocked',
+            'status' => 'required|in:Not Started,In Progress,Completed,Blocked,Submitted',
             'assigned_to' => 'required|array',
             'assigned_to.*' => 'exists:users,id',
             'role' => 'required|in:Owner,Reviewer,Collaborator',
             'start_date' => 'nullable|date',
+            'start_time' => 'nullable',
             'due_date' => 'nullable|date|after_or_equal:start_date',
-            'attachments.*' => 'file|max:2048'
+            'due_time' => 'nullable',
+            'attachments' => 'nullable|file|max:2048',
         ]);
 
+        // File upload
         $path = null;
-
         if ($request->hasFile('attachments')) {
             $file = $request->file('attachments');
             $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -116,119 +132,111 @@ class TaskController extends Controller
             $path = 'uploads/tasks/' . $fileName;
         }
 
-        // ✅ Create Task (NO assigned_to column here)
+        // Datetime handling
+        $startAt = $request->start_date && $request->start_time
+            ? Carbon::createFromFormat('Y-m-d H:i', $request->start_date.' '.$request->start_time)
+            : null;
+
+        $dueAt = $request->due_date && $request->due_time
+            ? Carbon::createFromFormat('Y-m-d H:i', $request->due_date.' '.$request->due_time)
+            : null;
+
+        // Create task
         $task = Task::create([
             'title' => $request->title,
             'description' => $request->description,
             'priority' => $request->priority,
             'status' => $request->status,
-            'start_date' => $request->start_date,
-            'due_date' => $request->due_date,
+            'start_date' => $startAt,
+            'due_date' => $dueAt,
             'created_by' => Auth::id(),
             'assigned_by' => Auth::id(),
             'role' => $request->role,
             'file_path' => $path,
         ]);
 
-        // ✅ Attach multiple students
-        $task->users()->attach($request->assigned_to);
+        // Attach users with assigned_at
+        $attachData = [];
+        foreach ($request->assigned_to as $userId) {
+            //$attachData[$userId] = ['start_date' => now()];
+            $attachData[$userId] = [
+                'start_date' => $startAt ?? now()
+            ];
+        }
 
-        // ✅ Send notification to each student
-        $students = User::whereIn('id', $request->assigned_to)->get();
+        $task->users()->attach($attachData);
 
-        foreach ($students as $student) {
-            $student->notify(new TaskAssignedNotification($task));
+        // Send notifications
+        $users = User::whereIn('id', $request->assigned_to)->get();
+        foreach ($users as $user) {
+            $user->notify(new TaskAssignedNotification($task));
         }
 
         return redirect()->route('tasks.index')
-            ->with('success', 'Task assigned to students successfully.');
+            ->with('success', 'Task assigned successfully.');
     }
 
     // Show the form to edit an existing employee
     public function edit($id)
     {
-        // $task = Task::join('users', 'tasks.assigned_to', '=', 'users.id')
-        //     ->select(
-        //         'tasks.*',
-        //         'users.name as employee_name',
-        //         'users.email as employee_email',
-        //         'users.empuniq_id'
-        //     )
-        //     ->orderByDesc('tasks.id')
-        //     //->paginate(10) // ✅ Add pagination
-        //     ->where('created_by', Auth::id())
-        //     ->Where('tasks.id', $id)
-        //     ->first();
-
         $task = Task::where('created_by', Auth::id())
-            // ->orWhereJsonContains('assigned_to', Auth::id())
             ->with('users')   // 👈 IMPORTANT
             ->findOrFail($id);
 
-        // echo"<pre>";
-        // print_r($task);
-        // die;
-
-        //$employees = User::where('role', 'employee')->get();
-
         $employees = User::whereNotIn('users.role', ['employer'])->get();
 
+        $timeSlots = $this->getTimeSlots();
 
-        return view('employer.tasks.create', compact('task', 'employees'));
+        return view('employer.tasks.create', compact('task', 'employees','timeSlots'));
     }
 
     // Update an existing employee
     public function update(Request $request, $id)
     {
+        $task = Task::findOrFail($id);
 
         $request->validate([
             'title' => 'required|string',
             'description' => 'nullable|string',
             'priority' => 'required|in:Low,Medium,High',
-            'status' => 'required|in:Not Started,In Progress,Completed,Blocked',
-            'assigned_to' => 'required|exists:users,id',
+            'status' => 'required|in:Not Started,In Progress,Completed,Blocked,Submitted',
+            'assigned_to' => 'required|array',
+            'assigned_to.*' => 'exists:users,id',
             'role' => 'required|in:Owner,Reviewer,Collaborator',
             'start_date' => 'nullable|date',
+            'start_time' => 'nullable',
             'due_date' => 'nullable|date|after_or_equal:start_date',
-            'attachments.*' => 'file|max:2048'
+            'due_time' => 'nullable',
         ]);
 
-        $path = null;
+        $startAt = $request->start_date && $request->start_time
+            ? Carbon::createFromFormat('Y-m-d H:i', $request->start_date.' '.$request->start_time)
+            : null;
 
-        if ($request->hasFile('attachments')) {
-            $pdf = $request->file('attachments');
-            // Generate a unique filename
-            $pdfName = time() . '_' . uniqid() . '.' . $pdf->getClientOriginalExtension();
-            // Move the file to the public/uploads/tasks directory
-            $pdf->move(public_path('uploads/tasks'), $pdfName);
-            // Store the relative file path
-            $path = 'uploads/tasks/' . $pdfName;
+        $dueAt = $request->due_date && $request->due_time
+            ? Carbon::createFromFormat('Y-m-d H:i', $request->due_date.' '.$request->due_time)
+            : null;
+
+        $task->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'priority' => $request->priority,
+            'status' => $request->status,
+            'start_date' => $startAt,
+            'due_date' => $dueAt,
+            'role' => $request->role,
+        ]);
+
+        // Sync users
+        $syncData = [];
+        foreach ($request->assigned_to as $userId) {
+            $syncData[$userId] = ['start_date' => now()];
         }
 
-        // print_r($request->all());
-        // die;
-        $Task = Task::findOrFail($id);
-        $Task->title = $request->title;
-        $Task->description = $request->description;
-        $Task->priority = $request->priority;
-        $Task->status = $request->status;
+        $task->users()->sync($syncData);
 
-        $Task->start_date = Carbon::parse($request->start_date);
-        $Task->due_date = Carbon::parse($request->due_date);
-        $Task->created_by = Auth::id();
-        $Task->assigned_by = Auth::id();
-
-        $Task->assigned_to = $request->assigned_to;
-        $Task->role = $request->role;
-        // $Task->assigned_to = json_encode($request->assigned_to);
-
-        // Only set file_path if a file was uploaded
-        if ($path) {
-            $Task->file_path = $path;
-        }
-        $Task->save();
-
-        return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task updated successfully.');
     }
 
     public function show(Task $task)
@@ -247,38 +255,19 @@ class TaskController extends Controller
     // Show trashed tasks
     public function trashed()
     {
-        // $trashedTasks = Task::join('users', 'tasks.assigned_to', '=', 'users.id')
-        //     ->select(
-        //         'tasks.*',
-        //         'users.name as employee_name',
-        //     )
-        //     ->orderByDesc('tasks.id')
-        //     ->where('created_by', Auth::id())
-        //     ->onlyTrashed()->get();
-
-
         $user = Auth::user();
 
         if ($user->role === 'employee') {
-            $trashedTasks = Task::onlyTrashed()
-                ->whereJsonContains('assigned_to', (string) $user->id)
-                ->orderByDesc('id')
+            $tasks = Task::onlyTrashed()
+                ->whereHas('users', fn ($q) => $q->where('users.id', $user->id))
                 ->get();
         } else {
-            $trashedTasks = Task::onlyTrashed()
-                ->where(function ($query) use ($user) {
-                    $query->where('created_by', $user->id)
-                        ->orWhereJsonContains('assigned_to', (string) $user->id);
-                })
-                ->orderByDesc('id')
+            $tasks = Task::onlyTrashed()
+                ->where('created_by', $user->id)
                 ->get();
         }
 
-
-
-
-
-        return view('employer.Tasks.trashed', compact('trashedTasks'));
+        return view('tasks.trashed', compact('tasks'));
     }
 
     // Restore
@@ -325,39 +314,69 @@ class TaskController extends Controller
         return redirect()->route('tasks.index')->with('success', 'Task rescheduled successfully.');
     }
 
-    public function submit(Request $request)
+    public function submit(Request $request, Task $task)
     {
+        $user = Auth::user();
 
-        // print_r($request->all());
-        // die;
-
-        $request->validate([
-            'task_id' => 'required|exists:tasks,id',
-            'progress' => 'required|string',
-            'submission_file' => 'nullable|file|max:2048',
-        ]);
-
-        $task = Task::findOrFail($request->task_id);
-        $task->progress = $request->progress;
-        $task->status = $request->status;
-        $task->submitted_by = auth()->id();
-        $task->submitted_at = now();
-
-        $path = null;
-
-        if ($request->hasFile('submission_file')) {
-            $pdf = $request->file('submission_file');
-            // Generate a unique filename
-            $pdfName = time() . '_' . uniqid() . '.' . $pdf->getClientOriginalExtension();
-            // Move the file to the public/uploads/tasks directory
-            $pdf->move(public_path('uploads/taskssubmition'), $pdfName);
-            // Store the relative file path
-            $path = 'uploads/taskssubmition/' . $pdfName;
+        // 1️⃣ Only employees can submit
+        if ($user->role !== 'employee') {
+            abort(403, 'Unauthorized');
         }
 
-        $task->submission_file = $path;
-        $task->save();
+        // 2️⃣ Check task assignment
+        $pivotUser = $task->users()->where('users.id', $user->id)->first();
 
-        return back()->with('success', 'Task submitted successfully.');
+        if (!$pivotUser) {
+            return back()->with('error', 'Task is not assigned to you.');
+        }
+
+        // 3️⃣ Prevent re-submission (FINAL LOCK)
+        if ($task->status === 'Submitted') {
+            return back()->with('error', 'Task already finalized.');
+        }
+
+        // 4️⃣ Validate request
+        $request->validate([
+            'progress' => 'required|integer|min:0|max:100',
+            'status' => 'required|in:In Progress,Submitted',
+            'submission_file' => 'nullable|file|max:4096',
+        ]);
+
+        // 5️⃣ File upload
+        $filePath = null;
+        if ($request->hasFile('submission_file')) {
+            $file = $request->file('submission_file');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/task_submissions'), $fileName);
+            $filePath = 'uploads/task_submissions/' . $fileName;
+        }
+
+        // 6️⃣ Calculate worked minutes
+        $pivot = $pivotUser->pivot;
+        $submittedAt = now();
+
+        $startTime = $pivot->start_date
+            ? Carbon::parse($pivot->start_date)
+            : Carbon::parse($pivot->created_at);
+
+        $workedMinutes = $startTime->diffInMinutes($submittedAt);
+
+        // 7️⃣ Update PIVOT table (task_user)
+        $task->users()->updateExistingPivot($user->id, [
+            'submitted_at'   => $submittedAt,
+            'worked_minutes' => $workedMinutes,
+        ]);
+
+        // 8️⃣ Update TASK table
+        $task->update([
+            'progress'        => $request->progress,
+            'submission_file' => $filePath,
+            'status'          => $request->status,
+            'submitted_by'    => $user->id,
+            'submitted_at'    => $submittedAt,
+        ]);
+
+        return redirect()->route('tasks.index')
+            ->with('success', 'Task submitted successfully.');
     }
 }

@@ -35,10 +35,6 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('tasks', TaskController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
     Route::get('/employee-leaves', [EmployeeLeaveController::class, 'index'])->name('employee.leaves.index');
     Route::get('/employee-leaves/create', [EmployeeLeaveController::class, 'create'])->name('employee.leaves.create');
     Route::post('/employee-leaves/store', [EmployeeLeaveController::class, 'store'])->name('employee.leaves.store');
@@ -46,7 +42,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/comments', [CommentController::class, 'store'])->name('tasks.comments.store');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/submitedtask', [TaskController::class, 'submitedtask'])->name('tasks.submitedtask');
-    Route::post('/tasks/submit', [TaskController::class, 'submit'])->name('tasks.submit');
+    Route::post('/tasks/{task}/submit', [TaskController::class, 'submit'])->name('tasks.submit');
 
     Route::get('/team_leader/attendance', [EmployeeAttendanceController::class, 'index'])->name('team_leader.attendance');
     Route::get('/team_leader/salary-slips', [SalarySlipController::class, 'empoloyeeindex'])->name('team_leader.salary_slips.index');
@@ -67,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/letters/{letter}/download', [EmployeeLetterController::class, 'download'])->name('letters.download');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::resource('tasks', TaskController::class)->except(['update']);
+});
 
 Route::middleware(['auth', 'role:employer'])->group(function () {
 

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', 'Create Tasks')
 
-@section('title', isset($task) ? 'Update Task' : 'Create Task')
+@section('title', $task ? 'Update Task' : 'Create Task')
 
 @section('content')
 <div class="container mt-3">
@@ -9,14 +9,14 @@
         <div class="col-lg-10">
             
             <div class="d-none d-md-flex gap-2 d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold text-primary"> 📄 {{ isset($task) ? 'Update Task' : 'Create New Task' }}</h2>
+                <h2 class="fw-bold text-primary"> 📄 {{ $task ? 'Update Task' : 'Create New Task' }}</h2>
                 <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-secondary rounded-pill">
                     <i class="bi bi-arrow-left"></i> Back to List
                 </a>
         </div>
 
         <div class="d-flex d-md-none align-items-center justify-content-between mb-2">
-            <h2 class="fw-bold text-primary"> 📄 {{ isset($task) ? 'Update Task' : 'Create New Task' }}</h2>
+            <h2 class="fw-bold text-primary"> 📄 {{ $task ? 'Update Task' : 'Create New Task' }}</h2>
 
             <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-dark btn-sm">
                     <i class="bi bi-arrow-left"></i>
@@ -40,10 +40,10 @@
             <div class="card shadow border-0 rounded-2">
                 <div class="card-body p-4">
                     <form method="POST"
-                        action="{{ isset($task) ? route('tasks.update', $task->id) : route('tasks.store') }}"
+                        action="{{ $task ? route('tasks.update', $task->id) : route('tasks.store') }}"
                         enctype="multipart/form-data">
                         @csrf
-                        @if(isset($task))
+                        @if($task)
                         @method('PUT')
                         @endif
 
@@ -95,14 +95,31 @@
                             <!-- Start Date -->
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Start Date <span class="text-danger">*</span></label>
-                                <input type="date" name="start_date" class="form-control"
-                                    value="{{ old('start_date', optional($task->start_date)->format('Y-m-d')) }}"
+                                
+                                    <input type="date" name="start_date" class="form-control"
+                                        value="{{ old('start_date', optional($task?->start_date)->format('Y-m-d')) }}"
+                                        required>
 
-                                    required>
+                                    <!-- @php
+                                        $startTime = old(
+                                            'start_time',
+                                            optional($task?->start_date)->format('h:i A')
+                                        );
+                                    @endphp
+
+                                    <select name="start_time">
+                                        <option value="">Select time</option>
+                                        @foreach($timeSlots as $time)
+                                            <option value="{{ $time }}" {{ $startTime == $time ? 'selected' : '' }}>
+                                                {{ $time }}
+                                            </option>
+                                        @endforeach
+                                    </select> -->
+
                                  @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
-                            <!-- <div class="mb-3 col-md-6">
+                            <div class="mb-3 col-md-6">
                                 <label class="form-label">Start Time</label>
 
                                 @php
@@ -129,18 +146,32 @@
                                         @endforeach
                                     @endfor
                                 </select>
-                            </div> -->
+                            </div>
 
                             <!-- Due Date -->
                             <div class="mb-3 col-md-6">
                                 <label class="form-label">Due Date <span class="text-danger">*</span></label>
-                                <input type="date" name="due_date" class="form-control"
-                                    value="{{ old('due_date', optional($task->due_date ?? null)->format('Y-m-d')) }}"
+                                    <input type="date" name="due_date" class="form-control"
+                                    value="{{ old('due_date', optional($task?->due_date)->format('Y-m-d')) }}"
                                     required>
+
+                                    <!-- <select name="due_time" class="form-select" required>
+                                        <option value="">Select Time</option>
+                                        @for($h = 1; $h <= 12; $h++)
+                                            @foreach(['00','15','30','45'] as $m)
+                                                <option value="{{ sprintf('%02d:%s AM', $h, $m) }}">
+                                                    {{ $h }}:{{ $m }} AM
+                                                </option>
+                                                <option value="{{ sprintf('%02d:%s PM', $h, $m) }}">
+                                                    {{ $h }}:{{ $m }} PM
+                                                </option>
+                                            @endforeach
+                                        @endfor
+                                    </select> -->
                                 @error('due_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
-                            <!-- <div class="mb-3 col-md-6">
+                            <div class="mb-3 col-md-6">
                                 <label class="form-label">Due Time</label>
 
                                 @php
@@ -152,7 +183,7 @@
                                     );
                                 @endphp
 
-                                <select name="start_time" class="form-select">
+                                <select name="due_time" class="form-select">
                                     <option value="">Select Time</option>
 
                                     @for ($h = 0; $h < 24; $h++)
@@ -167,13 +198,13 @@
                                         @endforeach
                                     @endfor
                                 </select>
-                            </div> -->
+                            </div>
 
                             <!-- Assign User -->
                            @php
                             $assignedTo = old(
                                 'assigned_to',
-                                isset($task) ? $task->users->pluck('id')->toArray() : []
+                                $task ? $task->users->pluck('id')->toArray() : []
                             );
                             @endphp
 
@@ -203,7 +234,7 @@
                                 <input type="file" id="attachments" name="attachments" class="form-control" accept="image/*,application/pdf">
                                 @error('attachments') <div class="invalid-feedback">{{ $message }}</div> @enderror
 
-                                @if(isset($task->file_path))
+                                @if($task && $task->file_path)
                                 <div class="mt-2">
                                     <a href="{{ asset($task->file_path) }}" target="_blank" class="btn btn-outline-primary btn-sm">
                                         <i class="bi bi-paperclip me-1"></i> View Current File
@@ -216,7 +247,7 @@
                         <!-- Submit Button -->
                         <div class="text-end mt-3">
                             <button type="submit" class="btn btn-success rounded-pill px-5 py-2">
-                                <i class="bi bi-upload me-1"></i> {{ isset($task) ? 'Update Task' : 'Create Task' }}
+                                <i class="bi bi-upload me-1"></i> {{ $task ? 'Update Task' : 'Create Task' }}
                             </button>
                         </div>
                     </form>
