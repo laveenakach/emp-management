@@ -64,7 +64,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('tasks', TaskController::class)->except(['update']);
+    Route::resource('tasks', TaskController::class);
 });
 
 Route::middleware(['auth', 'role:employer'])->group(function () {
