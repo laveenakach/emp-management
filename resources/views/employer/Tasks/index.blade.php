@@ -165,44 +165,114 @@
 
                             <td class="text-nowrap">
                                 <div class="d-flex gap-2">
+                                     @php
+                                        $isEmployee = auth()->user()->role === 'employee';
+                                        $isEmployer = auth()->user()->role === 'employer';
+                                        $isAssigned = $task->users->contains('id', auth()->id());
+                                        $isOverdue  = $task->due_date && now()->gt(\Carbon\Carbon::parse($task->due_date));
+                                    @endphp
 
-                                   @if(
-                                        auth()->user()->role === 'employee' &&
-                                        $task->users->contains('id', auth()->id()) &&
-                                        $task->status !== 'Submitted'
-                                    )
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-success"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#submitTaskModal"
-                                        data-task-id="{{ $task->id }}"
-                                        data-task-title="{{ $task->title }}"
-                                    >
-                                        <i class="bi bi-send-check"></i> Submit Task
-                                    </button>
+                                    @if($isEmployee && $isAssigned)
+
+                                        {{-- APPROVED → LOCKED --}}
+                                        @if($task->status === 'Approved')
+                                            <span class="text-danger small fw-semibold">
+                                                Submission locked (Approved)
+                                            </span>
+
+                                        {{-- TIME OVER --}}
+                                        @elseif($isOverdue)
+                                            <span class="text-danger small fw-semibold">
+                                                Time over
+                                            </span>
+
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-warning"
+                                                    onclick="requestMoreTime({{ $task->id }})">
+                                                <i class="bi bi-clock"></i> Request More Time
+                                            </button>
+
+                                        {{-- SUBMITTED → ALLOW FILE UPDATE --}}
+                                        @elseif($task->status === 'Submitted')
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-warning"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#submitTaskModal"
+                                                data-task-id="{{ $task->id }}"
+                                                data-task-title="{{ $task->title }}"
+                                            >
+                                                <i class="bi bi-upload"></i> Update Submission
+                                            </button>
+
+                                            <span class="text-warning small fw-semibold ms-2">
+                                                Waiting for approval
+                                            </span>
+
+                                        {{-- NOT STARTED / REJECTED --}}
+                                        @else
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-success"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#submitTaskModal"
+                                                data-task-id="{{ $task->id }}"
+                                                data-task-title="{{ $task->title }}"
+                                            >
+                                                <i class="bi bi-send-check"></i> Submit Task
+                                            </button>
+                                        @endif
+
                                     @endif
 
-                                    <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-info">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
+                                    @if($isEmployer)
 
-                                    @if(auth()->id() === $task->created_by)
-                                        <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning d-flex align-items-center gap-1">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </a>
+                                        <a href="{{ route('tasks.show', $task) }}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
 
-                                    <a href="{{ route('tasks.reschedule.form', $task->id) }}" class="btn btn-sm btn-success d-flex align-items-center gap-1">
-                                        <i class="bi bi-clock-history"></i> Reschedule
-                                    </a>
+                                        @if(auth()->id() === $task->created_by)
 
-                                    <form action="{{ route('tasks.softDelete', $task->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this task?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-trash3"></i>
-                                        </button>
-                                    </form>
+                                            <a href="{{ route('tasks.edit', $task) }}" class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+
+                                            <a href="{{ route('tasks.reschedule.form', $task->id) }}"
+                                            class="btn btn-sm btn-success">
+                                                <i class="bi bi-clock-history"></i> Reschedule
+                                            </a>
+
+                                            <form action="{{ route('tasks.softDelete', $task->id) }}"
+                                                method="POST"
+                                                onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
+
+                                    @endif
+                                    @endif
+
+                                    @if($isEmployer && $task->status === 'Submitted')
+
+                                        <form action="{{ route('tasks.approve', $task) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button class="btn btn-sm btn-success"
+                                                    onclick="return confirm('Approve this task?')">
+                                                <i class="bi bi-check-circle"></i> Approve
+                                            </button>
+                                        </form>
+
+                                        <form action="{{ route('tasks.reject', $task) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button class="btn btn-sm btn-danger"
+                                                    onclick="return confirm('Reject this task?')">
+                                                <i class="bi bi-x-circle"></i> Reject
+                                            </button>
+                                        </form>
+
                                     @endif
                                 </div>
                             </td>
@@ -215,6 +285,10 @@
         </div>
     </div>
 </div>
+
+<form id="requestMoreTimeForm" method="POST">
+    @csrf
+</form>
 
 <!-- Submit Task Modal -->
 <div class="modal fade" id="submitTaskModal" tabindex="-1">
@@ -231,24 +305,24 @@
                 <div class="modal-body">
                     <p>Are you sure you want to submit: <strong id="taskTitle"></strong>?</p>
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label class="form-label">Progress</label>
                         <textarea name="progress" class="form-control" required></textarea>
-                    </div>
+                    </div> -->
 
                     <div class="mb-3">
                         <label class="form-label">Upload File</label>
                         <input type="file" name="submission_file" class="form-control">
                     </div>
 
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select name="status" class="form-control" required>
                             <option value="">-- Select --</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Submitted">Submitted</option>
                         </select>
-                    </div>
+                    </div> -->
                 </div>
 
                 <div class="modal-footer">
@@ -324,6 +398,11 @@
 </script>
 
 <script>
+    function requestMoreTime(taskId) {
+    const form = document.getElementById('requestMoreTimeForm');
+    form.action = `/tasks/${taskId}/request-more-time`;
+    form.submit();
+}
 document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('submitTaskModal');
 

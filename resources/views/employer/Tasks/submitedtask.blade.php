@@ -80,7 +80,7 @@
                             <th>Sr. No</th>
                             <th>Title</th>
                             <th>Status</th>
-                            <th>Progress/Work Details</th>
+                            <!-- <th>Progress/Work Details</th> -->
                             @if(auth()->user()->role === 'employer')
                             <th>Employee Name</th>
                             <th>Total Working Time</th>
@@ -96,7 +96,7 @@
                             <td>{{ $loop->iteration }}</td> {{-- Serial Number --}}
                             <td>{{ $task->title }}</td>
                             <td>{{ ucfirst($task->status) }}</td>
-                            <td>{{ ucfirst($task->progress) }}</td>
+                            <!-- <td>{{ ucfirst($task->progress) }}</td> -->
                             @if(auth()->user()->role === 'employer')
                                 {{-- Employee Name Column --}}
                                 <td>

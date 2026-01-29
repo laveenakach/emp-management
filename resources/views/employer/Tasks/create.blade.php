@@ -73,7 +73,7 @@
                                 <label class="form-label">Status <span class="text-danger">*</span></label>
                                 <select name="status" class="form-select" required>
                                     <option value="">Select Status</option>
-                                    @foreach (['Not Started', 'In Progress', 'Completed', 'Blocked', 'Submitted'] as $status)
+                                    @foreach (['Not Started','Submitted','Approved','Rejected'] as $status)
                                     <option value="{{ $status }}" {{ old('status', $task->status ?? '') == $status ? 'selected' : '' }}>{{ $status }}</option>
                                     @endforeach
                                 </select>

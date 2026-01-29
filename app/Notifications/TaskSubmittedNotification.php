@@ -6,19 +6,22 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\DatabaseMessage;
 
-class TaskAssignedNotification extends Notification
+class TaskSubmittedNotification extends Notification
 {
     use Queueable;
 
     protected $task;
+    protected $employee;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($task)
+    public function __construct($task,$employee)
     {
         $this->task = $task;
+        $this->employee = $employee;
     }
 
     /**
@@ -26,7 +29,7 @@ class TaskAssignedNotification extends Notification
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via(object $notifiable)
     {
         return ['database'];
     }
@@ -57,14 +60,11 @@ class TaskAssignedNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'task_id'   => $this->task->id,
-            'title'     => 'New Task Assigned',
-            'message'   => 'You have been assigned a task: ' . $this->task->title,
-            'priority'  => $this->task->priority,
-            'due_date'  => $this->task->due_date,
-            'assigned_by' => auth()->user()->name,
-            'employee_id'  => $notifiable->id,
-            'employee_name'=> $notifiable->name,
+            'task_id' => $this->task->id,
+            'title'   => 'Task Submitted',
+            'employee_id'    => $this->employee->id,
+            'employee_name'  => $this->employee->name,
+            'message' => "Task '{$this->task->title}' has been submitted and is waiting for approval.",
         ];
     }
 }

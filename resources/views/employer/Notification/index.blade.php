@@ -95,7 +95,8 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         @if(auth()->user()->role === 'employer')
-                            <td>{{ $notification->employee_name ?? '—' }}</td>
+                            <td>{{ $notification->data['employee_name'] ?? '—' }}</td>
+
                         @endif
                         {{-- Title from JSON --}}
                         <td>{{ $notification->data['title'] ?? '-' }}</td>

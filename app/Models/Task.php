@@ -38,6 +38,11 @@ class Task extends Model
         'submitted_at' => 'datetime',
     ];
 
+    const STATUS_NOT_STARTED = 'Not Started';
+    const STATUS_SUBMITTED   = 'Submitted';
+    const STATUS_APPROVED    = 'Approved';
+    const STATUS_REJECTED    = 'Rejected';
+
     public function assignedUser()
     {
         return $this->belongsTo(User::class, 'assigned_to');

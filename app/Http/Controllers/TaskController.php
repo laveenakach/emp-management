@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Notifications\TaskAssignedNotification;
+use App\Notifications\TaskSubmittedNotification;
 
 class TaskController extends Controller
 {
@@ -112,7 +114,7 @@ class TaskController extends Controller
             'title' => 'required|string',
             'description' => 'nullable|string',
             'priority' => 'required|in:Low,Medium,High',
-            'status' => 'required|in:Not Started,In Progress,Completed,Blocked,Submitted',
+            'status' => 'required|in:Not Started,Submitted,Approved,Rejected',
             'assigned_to' => 'required|array',
             'assigned_to.*' => 'exists:users,id',
             'role' => 'required|in:Owner,Reviewer,Collaborator',
@@ -199,7 +201,7 @@ class TaskController extends Controller
             'title' => 'required|string',
             'description' => 'nullable|string',
             'priority' => 'required|in:Low,Medium,High',
-            'status' => 'required|in:Not Started,In Progress,Completed,Blocked,Submitted',
+            'status' => 'required|in:Not Started,Submitted,Approved,Rejected',
             'assigned_to' => 'required|array',
             'assigned_to.*' => 'exists:users,id',
             'role' => 'required|in:Owner,Reviewer,Collaborator',
@@ -309,6 +311,13 @@ class TaskController extends Controller
 
         $task->start_date = $request->start_date;
         $task->due_date = $request->due_date;
+        $task->status = 'Not Started';
+
+        // Notification::create([
+        //     'user_id' => $task->assigned_to,
+        //     'title'   => 'Task Rescheduled',
+        //     'message' => "Task '{$task->title}' has been rescheduled."
+        // ]);
         $task->save();
 
         return redirect()->route('tasks.index')->with('success', 'Task rescheduled successfully.');
@@ -316,67 +325,106 @@ class TaskController extends Controller
 
     public function submit(Request $request, Task $task)
     {
-        $user = Auth::user();
-
-        // 1️⃣ Only employees can submit
-        if ($user->role !== 'employee') {
-            abort(403, 'Unauthorized');
+        if ($task->status === 'Approved') {
+            return back()->withErrors('Task already approved.');
         }
 
-        // 2️⃣ Check task assignment
-        $pivotUser = $task->users()->where('users.id', $user->id)->first();
-
-        if (!$pivotUser) {
-            return back()->with('error', 'Task is not assigned to you.');
+        if ($task->due_date && now()->gt($task->due_date)) {
+            return back()->withErrors('Task deadline exceeded.');
         }
 
-        // 3️⃣ Prevent re-submission (FINAL LOCK)
-        if ($task->status === 'Submitted') {
-            return back()->with('error', 'Task already finalized.');
-        }
-
-        // 4️⃣ Validate request
         $request->validate([
-            'progress' => 'required|integer|min:0|max:100',
-            'status' => 'required|in:In Progress,Submitted',
-            'submission_file' => 'nullable|file|max:4096',
+            'submission_file' => 'required|file|max:2048',
         ]);
 
-        // 5️⃣ File upload
-        $filePath = null;
-        if ($request->hasFile('submission_file')) {
-            $file = $request->file('submission_file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/task_submissions'), $fileName);
-            $filePath = 'uploads/task_submissions/' . $fileName;
+        // Store file (even if you don't store path in DB)
+        $request->file('submission_file')
+                ->store('task_uploads', 'public');
+
+        // ✅ update ONLY existing pivot columns
+        $task->users()->updateExistingPivot(
+            auth()->id(),
+            [
+                'submitted_at' => now(),
+            ]
+        );
+
+        // update task status
+        $task->update([
+            'status' => 'Submitted'
+        ]);
+
+        $employee = auth()->user();
+        $employer = User::find($task->created_by);
+
+        if ($employer) {
+            $employer->notify(new TaskSubmittedNotification($task,$employee));
         }
 
-        // 6️⃣ Calculate worked minutes
-        $pivot = $pivotUser->pivot;
-        $submittedAt = now();
+        return back()->with('success', 'File uploaded successfully.');
+    }
 
-        $startTime = $pivot->start_date
-            ? Carbon::parse($pivot->start_date)
-            : Carbon::parse($pivot->created_at);
+    public function approveTask(Task $task)
+    {
+        // only allow approving submitted tasks
+        if ($task->status !== 'Submitted') {
+            return back()->withErrors('Only submitted tasks can be approved.');
+        }
 
-        $workedMinutes = $startTime->diffInMinutes($submittedAt);
-
-        // 7️⃣ Update PIVOT table (task_user)
-        $task->users()->updateExistingPivot($user->id, [
-            'submitted_at'   => $submittedAt,
-            'worked_minutes' => $workedMinutes,
-        ]);
-
-        // 8️⃣ Update TASK table
         $task->update([
-            'progress'        => $request->progress,
-            'submission_file' => $filePath,
-            'status'          => $request->status,
-            'submitted_by'    => $user->id,
-            'submitted_at'    => $submittedAt,
+            'status' => 'Approved'
         ]);
 
-        return redirect()->route('tasks.index')
-            ->with('success', 'Task submitted successfully.');
+        // 🔔 notify employee(s)
+        // foreach ($task->users as $user) {
+        //     $user->notify(new \App\Notifications\GenericNotification([
+        //         'title' => 'Task Approved',
+        //         'message' => "Your task '{$task->title}' has been approved."
+        //     ]));
+        // }
+
+        return back()->with('success', 'Task approved successfully.');
+    }
+
+    public function rejectTask(Task $task)
+    {
+        if ($task->status !== 'Submitted') {
+            return back()->withErrors('Only submitted tasks can be rejected.');
+        }
+
+        $task->update([
+            'status' => 'Rejected'
+        ]);
+
+        // 🔔 notify employee(s)
+        // foreach ($task->users as $user) {
+        //     $user->notify(new \App\Notifications\GenericNotification([
+        //         'title' => 'Task Rejected',
+        //         'message' => "Your task '{$task->title}' has been rejected."
+        //     ]));
+        // }
+
+        return back()->with('success', 'Task rejected successfully.');
+    }
+
+    public function requestMoreTime(Task $task)
+    {
+        if (! $task->users->contains(auth()->id())) {
+            abort(403);
+        }
+
+        // Update task status
+        $task->update([
+            'status' => 'Not Started'
+        ]);
+
+        // 🔔 notify employer
+        // Notification::create([
+        //     'user_id' => $task->employer_id,
+        //     'title'   => 'More Time Requested',
+        //     'message' => "Employee requested more time for task '{$task->title}'."
+        // ]);
+
+        return back()->with('success', 'Request sent to employer');
     }
 }

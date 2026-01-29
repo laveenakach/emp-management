@@ -53,11 +53,11 @@
                             <a href="{{ route('notifications.read', $notification->id) }}"
                             class="dropdown-item {{ $notification->read_at ? '' : 'fw-bold bg-light' }}">
 
-                                <small class="text-muted">
+                                <small class="text-muted d-block mb-1">
                                     {{ $notification->created_at->diffForHumans() }}
                                 </small>
 
-                                <div>
+                                <div class="d-block text-truncate" style="max-width: 100%;">
                                     {{ $notification->data['message'] ?? 'New notification' }}
                                 </div>
                             </a>

@@ -53,6 +53,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/tasks/{task}/reschedule', [TaskController::class, 'reschedule'])->name('tasks.reschedule');
     Route::delete('/tasks/{id}/soft-delete', [TaskController::class, 'softDelete'])->name('tasks.softDelete');
 
+    Route::post('/tasks/{task}/request-more-time', [TaskController::class, 'requestMoreTime'])
+    ->name('tasks.requestMoreTime');
+
     Route::get('/trashedtasks', [TaskController::class, 'trashed'])->name('tasks.trashed');
     Route::post('/tasks/{id}/restore', [TaskController::class, 'restore'])->name('tasks.restore');
     Route::delete('/tasks/{id}/force-delete', [TaskController::class, 'forceDelete'])->name('tasks.forceDelete');
@@ -129,6 +132,12 @@ Route::middleware(['auth', 'role:employer'])->group(function () {
 
     Route::get('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])
         ->name('notifications.markAllRead');
+
+    Route::post('/tasks/{task}/approve', [TaskController::class, 'approveTask'])
+        ->name('tasks.approve');
+
+    Route::post('/tasks/{task}/reject', [TaskController::class, 'rejectTask'])
+        ->name('tasks.reject');
 
     Route::prefix('accounts')->name('accounts.')->group(function () {
         Route::resource('clients', \App\Http\Controllers\Account\ClientController::class);
