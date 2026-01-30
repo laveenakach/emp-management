@@ -342,8 +342,8 @@ class TaskController extends Controller
             ->diffInMinutes(now());
 
         // Store file
-        // $path = $request->file('submission_file')
-        //     ->store('task_uploads', 'public');
+        $path = $request->file('submission_file')
+            ->store('uploads/task_submissions', 'public');
 
         // ✅ Update pivot
         $task->users()->updateExistingPivot(
@@ -356,7 +356,8 @@ class TaskController extends Controller
         );
 
         // Update task status
-        $task->update(['status' => 'Submitted']);
+        $task->update(['status' => 'Submitted',
+                        'submission_file' => $path]);
 
         // Notify employer
         $employee = auth()->user();

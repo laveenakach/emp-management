@@ -129,8 +129,8 @@
                                 @endforeach
                             </td>
                             <td>
-                                <a href="{{ asset($task->submission_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-file-earmark-arrow-down"></i> View Attachment
+                                <a href="{{ asset('storage/'.$task->submission_file) }}" target="_blank">
+                                    View Attachment
                                 </a>
                             </td>
                             <td class="text-nowrap">
