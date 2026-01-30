@@ -119,7 +119,15 @@
                                     @endforeach
                                 </td>
                             @endif
-                            <td>{{ \Carbon\Carbon::parse($task->submitted_at)->format('d M Y, h:i A') }}</td>
+                            <td>
+                                @foreach($task->users as $user)
+                                    @if($user->pivot->submitted_at)
+                                        {{ \Carbon\Carbon::parse($user->pivot->submitted_at)->format('d M Y, h:i A') }}
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                @endforeach
+                            </td>
                             <td>
                                 <a href="{{ asset($task->submission_file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-file-earmark-arrow-down"></i> View Attachment

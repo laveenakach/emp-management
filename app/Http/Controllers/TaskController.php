@@ -69,9 +69,9 @@ class TaskController extends Controller
 
         if ($user->role === 'employee') {
 
-            // Employee sees only tasks assigned to them AND submitted
+            // Employee: see ONLY their own APPROVED tasks
             $tasks = Task::with('users')
-                ->where('status', 'Submitted')
+                ->where('status', 'Approved')
                 ->whereHas('users', function ($q) use ($user) {
                     $q->where('users.id', $user->id);
                 })
@@ -80,18 +80,10 @@ class TaskController extends Controller
 
         } else {
 
-            // Employer sees:
-            // 1. Tasks they created
-            // 2. Tasks assigned to them
-            // AND status = Submitted
+            // Employer: see APPROVED tasks created by them
             $tasks = Task::with('users')
-                ->where('status', 'Submitted')
-                ->where(function ($q) use ($user) {
-                    $q->where('created_by', $user->id)
-                    ->orWhereHas('users', function ($q2) use ($user) {
-                        $q2->where('users.id', $user->id);
-                    });
-                })
+                ->where('status', 'Approved')
+                ->where('created_by', $user->id)
                 ->orderByDesc('id')
                 ->get();
         }
@@ -337,31 +329,44 @@ class TaskController extends Controller
             'submission_file' => 'required|file|max:2048',
         ]);
 
-        // Store file (even if you don't store path in DB)
-        $request->file('submission_file')
-                ->store('task_uploads', 'public');
+        $userId = auth()->id();
 
-        // ✅ update ONLY existing pivot columns
+        // Get pivot row
+        $pivot = $task->users()
+            ->where('users.id', $userId)
+            ->first()
+            ->pivot;
+
+        // 🔥 CALCULATE WORKED MINUTES
+        $workedMinutes = \Carbon\Carbon::parse($task->start_date)
+            ->diffInMinutes(now());
+
+        // Store file
+        // $path = $request->file('submission_file')
+        //     ->store('task_uploads', 'public');
+
+        // ✅ Update pivot
         $task->users()->updateExistingPivot(
-            auth()->id(),
+            $userId,
             [
-                'submitted_at' => now(),
+                'submitted_at'   => now(),
+                'worked_minutes' => $workedMinutes,
+            //   'submission_file'=> $path,
             ]
         );
 
-        // update task status
-        $task->update([
-            'status' => 'Submitted'
-        ]);
+        // Update task status
+        $task->update(['status' => 'Submitted']);
 
+        // Notify employer
         $employee = auth()->user();
         $employer = User::find($task->created_by);
 
         if ($employer) {
-            $employer->notify(new TaskSubmittedNotification($task,$employee));
+            $employer->notify(new TaskSubmittedNotification($task, $employee));
         }
 
-        return back()->with('success', 'File uploaded successfully.');
+        return back()->with('success', 'Task submitted successfully.');
     }
 
     public function approveTask(Task $task)
