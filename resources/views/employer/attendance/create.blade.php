@@ -72,7 +72,7 @@
             <div class="row g-3 mb-3">
 
                 {{-- ================= CHECK-IN ================= --}}
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <label class="form-label fw-semibold">Check-In Time</label>
 
                         @php
@@ -101,10 +101,10 @@
                                 @endforeach
                             @endfor
                         </select>
-                    </div>
+                    </div> -->
 
                     {{-- ================= CHECK-OUT ================= --}}
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <label class="form-label fw-semibold">Check-Out Time</label>
 
                         @php
@@ -133,7 +133,24 @@
                                 @endforeach
                             @endfor
                         </select>
-                    </div>
+                    </div> -->
+
+                    <div class="col">
+                    <label for="check_in" class="form-label">Check-In Time</label>
+                    <input type="time" name="check_in" id="check_in" value="{{ old('check_in', isset($Attendances) ? \Carbon\Carbon::parse($Attendances->check_in)->format('H:i') : '') }}" class="form-control @error('check_in') is-invalid @enderror" required>
+                    @error('check_in')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="col">
+                    <label for="check_out" class="form-label">Check-Out Time</label>
+                    <input type="time" name="check_out" id="check_out" value="{{ old('check_out', isset($Attendances) ? \Carbon\Carbon::parse($Attendances->check_out)->format('H:i') : '') }}" class="form-control @error('check_out') is-invalid @enderror" >
+                    @error('check_out')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
 
             <button type="submit" class="btn btn-dark px-4 rounded-pill">
                 <i class="bi bi-check2-circle me-1"></i> Save Attendance

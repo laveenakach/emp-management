@@ -81,7 +81,7 @@
                         <div class="mb-3 col-md-12" id="salary_field">
                             <label for="salary" class="form-label fw-semibold">Salary<span class="text-danger">*</span></label>
                             <input type="text" name="salary" id="salary" placeholder="Enter salary"
-                                value="{{ old('salary', isset($SalarySlip) ? $SalarySlip->salary : '') }}"
+                                value="{{ old('salary', $SalarySlip->gross_salary ?? '') }}"
                                 class="form-control rounded-pill" >
                         </div>
 

@@ -385,7 +385,7 @@ class SalarySlipController extends Controller
         $request->validate([
             'employee_id' => 'required|exists:users,id',
             'month' => 'required|date_format:Y-m',
-            'salary' => !$request->boolean('auto_generate') ? 'required|numeric' : 'nullable',
+            'salary' => 'required_without:auto_generate|numeric|nullable',
             'pdf_file' => 'nullable|mimes:pdf|max:5120',
         ]);
 
@@ -396,7 +396,17 @@ class SalarySlipController extends Controller
         $end = Carbon::parse($month)->endOfMonth();
 
         if ($request->has('auto_generate')) {
-            $grossSalary = $request->input('salary');
+            if ($request->boolean('auto_generate')) {
+                // If editing, take salary from existing record
+                $grossSalary = $salarySlip->gross_salary;
+
+                // If still null (edge case), fallback to request
+                if (!$grossSalary) {
+                    $grossSalary = $request->input('salary');
+                }
+            } else {
+                $grossSalary = $request->input('salary');
+            }
 
             // Attendance & Leave Summary
             $attendance = Attendances::where('employee_id', $employee->id)
@@ -521,8 +531,6 @@ class SalarySlipController extends Controller
                 ->with('success', 'Salary slip updated successfully.');
         }
     }
-
-
 
     public function delete($id)
     {

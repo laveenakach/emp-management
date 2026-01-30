@@ -79,6 +79,7 @@
                         <th>Employee Name</th>
                         <th>Month</th>
                         <th>Created At</th>
+                        <th>Updated At</th>
                         <th>Slip</th>
                         <th>Action</th>
                     </tr>
@@ -91,6 +92,7 @@
                         <td>{{ $slip->employee_name}}</td>
                         <td>{{ $slip->month }}</td>
                         <td>{{ \Carbon\Carbon::parse($slip->created_at)->format('d M, Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($slip->updated_at)->format('d M, Y') }}</td>
                         <td>
                             @if($slip->status == 'generated')
 
