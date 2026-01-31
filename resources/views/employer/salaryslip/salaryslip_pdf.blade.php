@@ -104,7 +104,7 @@
             <th>Total Half Days</th>
         </tr>
         <tr>
-            <td>{{ $slip->total_present_days }}</td>
+            <td>{{ $slip->total_present_days + ($slip->total_half_days * 0.5) }}</td>
             <td>{{ $slip->total_absent_days }}</td>
             <td>{{ $slip->total_half_days }}</td>
         </tr>
