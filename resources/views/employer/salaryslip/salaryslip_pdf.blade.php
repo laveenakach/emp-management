@@ -100,12 +100,12 @@
     <table>
         <tr>
             <th>Total Present Days</th>
-            <th>Total Leave Days</th>
+            <th>Total Absent Days</th>
             <th>Total Half Days</th>
         </tr>
         <tr>
             <td>{{ $slip->total_present_days }}</td>
-            <td>{{ $slip->total_leave_days }}</td>
+            <td>{{ $slip->total_absent_days }}</td>
             <td>{{ $slip->total_half_days }}</td>
         </tr>
     </table>
