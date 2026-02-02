@@ -132,60 +132,11 @@ class SalarySlipController extends Controller
         $start = Carbon::parse($month)->startOfMonth();
         $end   = Carbon::parse($month)->endOfMonth();
 
-        $totalDays = 30; // COMPANY POLICY: always 30 days
+        $totalDays = 30; // company policy
 
-        // ---------- MANUAL ENTRY ----------
-        if (!$request->boolean('auto_generate')) {
-            $grossSalary = (float) $request->salary;
-
-            $salarySlip = SalarySlip::updateOrCreate(
-                [
-                    'employee_id' => $employee->id,
-                    'month'       => $month,
-                ],
-                [
-                    'total_present_days' => 0,
-                    'total_half_days'    => 0,
-                    'total_absent_days'  => 0,
-
-                    'basic_salary'       => round(0.40 * $grossSalary, 2),
-                    'hra'                => round(0.40 * (0.40 * $grossSalary), 2),
-                    'conveyance'         => 1600,
-                    'medical'            => 1250,
-                    'special_allowance'  => round($grossSalary - (0.40 * $grossSalary + 0.40 * (0.40 * $grossSalary) + 1600 + 1250), 2),
-
-                    'gross_salary'       => $grossSalary,
-                    'professionalTax'    => 200,
-                    'absentDeduction'    => 0,
-                    'deductions'         => 200,
-                    'net_salary'         => round($grossSalary - 200, 2),
-                    'status'             => 'generated',
-                ]
-            );
-
-            // Generate PDF
-            $pdfPath = $this->generateAndSaveSalaryPdf($salarySlip, $employee);
-            $salarySlip->update(['file_path' => $pdfPath]);
-
-            return redirect()
-                ->route('employer.salary_slips.index')
-                ->with('success', 'Salary slip generated successfully.');
-        }
-
-        // ---------- AUTO-GENERATE ----------
-        $previousSlip = SalarySlip::where('employee_id', $employee->id)
-            ->where('gross_salary', '>', 0)
-            ->where('month', '<', $month)
-            ->orderBy('month', 'desc')
-            ->first();
-
-        if (!$previousSlip) {
-            return back()->withErrors(['salary' => 'No previous gross salary found for this employee.']);
-        }
-
-        $grossSalary = (float) $previousSlip->gross_salary;
-
-        // FETCH ATTENDANCE
+        /* ======================================================
+        ATTENDANCE (COMMON FOR MANUAL & AUTO)
+        ====================================================== */
         $attendanceMap = Attendances::where('employee_id', $employee->id)
             ->whereBetween('date', [$start, $end])
             ->get()
@@ -194,7 +145,6 @@ class SalarySlipController extends Controller
         $presentDays = 0;
         $halfDays    = 0;
         $absentDays  = 0;
-
         $workedDaysCounter = 0;
 
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
@@ -227,32 +177,105 @@ class SalarySlipController extends Controller
             }
         }
 
-        // ---------- SALARY CALCULATION ----------
-        $perDaySalary    = $grossSalary / $totalDays;
-        $absentDeduction = round($perDaySalary * $absentDays, 2);
+        /* ======================================================
+        MANUAL SALARY
+        ====================================================== */
+        if (!$request->boolean('auto_generate')) {
 
-        // Deduction for half days
+            $grossSalary = (float) $request->salary;
+
+            $perDaySalary     = $grossSalary / $totalDays;
+            $absentDeduction  = round($perDaySalary * $absentDays, 2);
+            $halfDayDeduction = round($perDaySalary * 0.5 * $halfDays, 2);
+
+            $totalAbsentDeduction = $absentDeduction + $halfDayDeduction;
+
+            $basicSalary = round(0.40 * $grossSalary, 2);
+            $hra         = round(0.40 * $basicSalary, 2);
+            $conveyance  = $presentDays > 0 ? 1600 : 0;
+            $medical     = $presentDays > 0 ? 1250 : 0;
+
+            $specialAllowance = round(
+                $grossSalary - ($basicSalary + $hra + $conveyance + $medical),
+                2
+            );
+
+            $salarySlip = SalarySlip::updateOrCreate(
+                [
+                    'employee_id' => $employee->id,
+                    'month'       => $month,
+                ],
+                [
+                    'total_present_days' => $presentDays,
+                    'total_half_days'    => $halfDays,
+                    'total_absent_days'  => $absentDays,
+
+                    'basic_salary'       => $basicSalary,
+                    'hra'                => $hra,
+                    'conveyance'         => $conveyance,
+                    'medical'            => $medical,
+                    'special_allowance'  => $specialAllowance,
+
+                    'gross_salary'       => $grossSalary,
+                    'professionalTax'    => 200,
+
+                    'absentDeduction' => $totalAbsentDeduction,
+                    'deductions'      => 200 + $totalAbsentDeduction,
+                    'net_salary'      => round($grossSalary - (200 + $totalAbsentDeduction), 2),
+
+                    'status'             => 'generated',
+                ]
+            );
+
+            $pdfPath = $this->generateAndSaveSalaryPdf($salarySlip, $employee);
+            $salarySlip->update(['file_path' => $pdfPath]);
+
+            return redirect()
+                ->route('employer.salary_slips.index')
+                ->with('success', 'Salary slip generated successfully.');
+        }
+
+        /* ======================================================
+        AUTO-GENERATE SALARY
+        ====================================================== */
+        $previousSlip = SalarySlip::where('employee_id', $employee->id)
+            ->where('gross_salary', '>', 0)
+            ->where('month', '<', $month)
+            ->orderBy('month', 'desc')
+            ->first();
+
+        if (!$previousSlip) {
+            return back()->withErrors(['salary' => 'No previous gross salary found for this employee.']);
+        }
+
+        $grossSalary = (float) $previousSlip->gross_salary;
+
+        $perDaySalary     = $grossSalary / $totalDays;
+        $absentDeduction  = round($perDaySalary * $absentDays, 2);
         $halfDayDeduction = round($perDaySalary * 0.5 * $halfDays, 2);
 
-        $totalDeduction  = 200 + $absentDeduction + $halfDayDeduction; // + professional tax
-        $netSalary       = round($grossSalary - $totalDeduction, 2);
+        $totalDeduction = 200 + $absentDeduction + $halfDayDeduction;
+        $netSalary      = round($grossSalary - $totalDeduction, 2);
 
         $basicSalary = round(0.40 * $grossSalary, 2);
         $hra         = round(0.40 * $basicSalary, 2);
         $conveyance  = $presentDays > 0 ? 1600 : 0;
         $medical     = $presentDays > 0 ? 1250 : 0;
-        $specialAllowance = round($grossSalary - ($basicSalary + $hra + $conveyance + $medical), 2);
 
-        // ---------- SAVE SALARY SLIP ----------
+        $specialAllowance = round(
+            $grossSalary - ($basicSalary + $hra + $conveyance + $medical),
+            2
+        );
+
         $salarySlip = SalarySlip::updateOrCreate(
             [
                 'employee_id' => $employee->id,
                 'month'       => $month,
             ],
             [
-                'total_present_days' => $presentDays, // full days only
+                'total_present_days' => $presentDays,
                 'total_half_days'    => $halfDays,
-                'total_absent_days'  => $absentDays,  // only full absents
+                'total_absent_days'  => $absentDays,
 
                 'basic_salary'       => $basicSalary,
                 'hra'                => $hra,
@@ -270,7 +293,6 @@ class SalarySlipController extends Controller
             ]
         );
 
-        // ---------- GENERATE PDF ----------
         $pdfPath = $this->generateAndSaveSalaryPdf($salarySlip, $employee);
         $salarySlip->update(['file_path' => $pdfPath]);
 
@@ -312,53 +334,100 @@ class SalarySlipController extends Controller
         $employee   = User::findOrFail($request->employee_id);
         $month      = $request->month;
 
-        $start     = Carbon::parse($month)->startOfMonth();
-        $totalDays = 30;
+        $start = Carbon::parse($month)->startOfMonth();
+        $end   = $start->copy()->endOfMonth();
 
+        $totalDays   = 30;
         $grossSalary = $request->salary ?? $salarySlip->gross_salary;
 
-        // Attendance
-        $attendance = Attendances::where('employee_id', $employee->id)
-            ->whereBetween('date', [$start, $start->copy()->endOfMonth()])
-            ->get();
+        // =========================
+        // ✅ ATTENDANCE (FIXED)
+        // =========================
+        $attendanceMap = Attendances::where('employee_id', $employee->id)
+            ->whereBetween('date', [$start, $end])
+            ->get()
+            ->keyBy(fn ($a) => Carbon::parse($a->date)->toDateString());
 
         $presentDays = 0;
-        $halfDays = 0;
+        $halfDays    = 0;
+        $absentDays  = 0;
 
-        foreach ($attendance as $day) {
-            if ($day->check_in && $day->check_out) {
-                $hours = Carbon::parse($day->check_out)
-                    ->diffInHours(Carbon::parse($day->check_in));
+        $workedDaysCounter = 0;
 
-                if ($hours >= 6) {
-                    $presentDays++;
-                } elseif ($hours >= 4) {
-                    $halfDays++;
-                }
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            if ($workedDaysCounter >= 30) break;
+            $workedDaysCounter++;
+
+            $dayStr = $date->toDateString();
+
+            if (!isset($attendanceMap[$dayStr])) {
+                $absentDays++;
+                continue;
+            }
+
+            $day = $attendanceMap[$dayStr];
+
+            if (!$day->check_in || !$day->check_out) {
+                $absentDays++;
+                continue;
+            }
+
+            $minutes = Carbon::parse($day->check_out)
+                ->diffInMinutes(Carbon::parse($day->check_in));
+
+            if ($minutes >= 360) {
+                $presentDays++;
+            } elseif ($minutes >= 240) {
+                $halfDays++;
+            } else {
+                $absentDays++;
             }
         }
 
-        $effectiveDays  = $presentDays + ($halfDays * 0.5);
-        $absentDays     = max($totalDays - $effectiveDays, 0);
-        $perDaySalary   = $grossSalary / $totalDays;
-        $absentDeduction = round($perDaySalary * $absentDays, 2);
+        // =========================
+        // ✅ SALARY CALCULATION
+        // =========================
+        $perDaySalary = $grossSalary / $totalDays;
+
+        // half day = 0.5 deduction
+        $absentDeduction = round(
+            ($absentDays * $perDaySalary) +
+            ($halfDays * 0.5 * $perDaySalary),
+            2
+        );
 
         $professionalTax = $grossSalary > 0 ? 200 : 0;
-        $netSalary       = round($grossSalary - $absentDeduction - $professionalTax, 2);
 
+        $totalDeductions = round(
+            $professionalTax + $absentDeduction,
+            2
+        );
+
+        $netSalary = round(
+            $grossSalary - $totalDeductions,
+            2
+        );
+
+        // =========================
+        // ✅ EARNINGS BREAKUP
+        // =========================
         $basicSalary = round(0.40 * $grossSalary, 2);
         $hra         = round(0.40 * $basicSalary, 2);
-        $conveyance  = $presentDays > 0 ? 1600 : 0;
-        $medical     = $presentDays > 0 ? 1250 : 0;
+        $conveyance  = ($presentDays + $halfDays) > 0 ? 1600 : 0;
+        $medical     = ($presentDays + $halfDays) > 0 ? 1250 : 0;
 
         $specialAllowance = round(
             $grossSalary - ($basicSalary + $hra + $conveyance + $medical),
             2
         );
 
+        // =========================
+        // ✅ UPDATE SLIP
+        // =========================
         $salarySlip->update([
             'employee_id'        => $employee->id,
             'month'              => $month,
+
             'total_present_days' => $presentDays,
             'total_half_days'    => $halfDays,
             'total_absent_days'  => $absentDays,
@@ -372,13 +441,15 @@ class SalarySlipController extends Controller
             'gross_salary'       => $grossSalary,
             'professionalTax'    => $professionalTax,
             'absentDeduction'    => $absentDeduction,
-            'deductions'         => $professionalTax + $absentDeduction,
+            'deductions'         => $totalDeductions,
             'net_salary'         => $netSalary,
 
             'status'             => 'generated',
         ]);
 
-        // ✅ REGENERATE PDF AFTER EDIT
+        // =========================
+        // ✅ REGENERATE PDF
+        // =========================
         $pdfPath = $this->generateAndSaveSalaryPdf($salarySlip, $employee);
         $salarySlip->update(['file_path' => $pdfPath]);
 
