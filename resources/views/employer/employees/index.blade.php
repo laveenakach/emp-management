@@ -97,6 +97,8 @@
                         <th>Email</th>
                         <th>Mobile</th>
                         <th>Department</th>
+                        <th>Worked Time (Month)</th>
+                        <th>Worked Time (Year)</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -108,7 +110,14 @@
                         <td>{{ $employee->name }}</td>
                         <td>{{ $employee->email }}</td>
                         <td>{{ $employee->mobile_no }}</td>
-                        <td>{{ $employee->department }}</td>
+                        <td>{{ $employee->department_name ?? '-' }}</td>
+                        <td class="fw-semibold text-primary">
+                            {{ $employee->worked_time_month }}
+                        </td>
+
+                        <td class="fw-semibold text-success">
+                            {{ $employee->worked_time_year }}
+                        </td>
                         <td>
                             <div style="display: flex; gap: 5px;">
                                  <a href="{{ route('employer.employees.show', $employee->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>

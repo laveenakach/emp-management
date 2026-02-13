@@ -114,6 +114,7 @@
                             <th>Date</th>
                             <th>Check In</th>
                             <th>Check Out</th>
+                            <th>Worked Time</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -126,6 +127,9 @@
                                 <td>{{ $attendance->date }}</td>
                                 <td>{{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') : '-' }}</td>
                                 <td>{{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') : '-' }}</td>
+                                <td class="fw-semibold text-primary">
+                                    {{ $attendance->worked_time }}
+                                </td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="{{ route('employer.attendance.edit', $attendance->id) }}" class="btn btn-warning btn-sm">

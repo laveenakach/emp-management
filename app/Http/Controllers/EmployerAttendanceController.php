@@ -13,19 +13,38 @@ class EmployerAttendanceController extends Controller
 
     public function index()
     {
-
-        //$attendances = Attendances::with('employee')->orderByDesc('id')->get();
-
         $user = Auth::user();
 
-        if($user->role === 'employer'){
-            $attendances = Attendances::orderByDesc('id')
-                ->get();
-        }else{
-            $attendances = Attendances::where('employee_id',$user->id)
-                ->orderByDesc('id')
-                ->get();
+        $query = Attendances::with('employee')->orderByDesc('date');
+
+        if ($user->role !== 'employer') {
+            $query->where('employee_id', $user->id);
         }
+
+        $attendances = $query->get();
+
+        // Calculate daily worked time
+        foreach ($attendances as $attendance) {
+
+            if ($attendance->check_in) {
+
+                $checkIn  = Carbon::parse($attendance->date . ' ' . $attendance->check_in);
+                $checkOut = $attendance->check_out
+                    ? Carbon::parse($attendance->date . ' ' . $attendance->check_out)
+                    : Carbon::now(); // still working
+
+                $minutes = $checkIn->diffInMinutes($checkOut);
+
+                $attendance->worked_time = sprintf(
+                    '%02d:%02d',
+                    intdiv($minutes, 60),
+                    $minutes % 60
+                );
+            } else {
+                $attendance->worked_time = '-';
+            }
+        }
+
         return view('employer.attendance.index', compact('attendances'));
     }
 

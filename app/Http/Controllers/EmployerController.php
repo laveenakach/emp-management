@@ -10,18 +10,84 @@ use Illuminate\Support\Facades\Crypt;
 use App\Models\Attendances;
 use Carbon\Carbon;
 use App\Models\EmployeeLeave;
+use Illuminate\Support\Facades\DB;
 
 class EmployerController extends Controller
 {
     // Show all employees (for employer)
     public function index()
     {
+        $month = now()->month;
+        $year  = now()->year;
+
         $employees = User::query()
             ->leftJoin('departments', 'users.department_id', '=', 'departments.id')
+            ->leftJoin('attendances', 'users.id', '=', 'attendances.employee_id')
             ->where('users.role', 'employee')
-            ->select('users.*', 'departments.name as department_name')
-            ->orderBy('users.id', 'desc') // Use 'asc' for ascending, 'desc' for descending
+            ->select(
+                'users.id',
+                'users.empuniq_id',
+                'users.name',
+                'users.email',
+                'users.mobile_no',
+                'departments.name as department_name',
+
+                // Monthly total minutes
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN MONTH(attendances.check_in) = $month
+                            AND YEAR(attendances.check_in) = $year
+                            THEN TIMESTAMPDIFF(
+                                MINUTE,
+                                attendances.check_in,
+                                attendances.check_out
+                            )
+                            ELSE 0
+                        END
+                    ) as monthly_minutes
+                "),
+
+                // Yearly total minutes
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN YEAR(attendances.check_in) = $year
+                            THEN TIMESTAMPDIFF(
+                                MINUTE,
+                                attendances.check_in,
+                                attendances.check_out
+                            )
+                            ELSE 0
+                        END
+                    ) as yearly_minutes
+                ")
+            )
+            ->groupBy(
+                'users.id',
+                'users.empuniq_id',
+                'users.name',
+                'users.email',
+                'users.mobile_no',
+                'departments.name'
+            )
+            ->orderBy('users.id', 'desc')
             ->get();
+
+        // Convert minutes → HH:MM
+        foreach ($employees as $employee) {
+            $employee->worked_time_month = sprintf(
+                '%02d:%02d',
+                intdiv($employee->monthly_minutes, 60),
+                $employee->monthly_minutes % 60
+            );
+
+            $employee->worked_time_year = sprintf(
+                '%02d:%02d',
+                intdiv($employee->yearly_minutes, 60),
+                $employee->yearly_minutes % 60
+            );
+        }
 
         return view('employer.employees.index', compact('employees'));
     }
