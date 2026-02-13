@@ -113,7 +113,13 @@
                 CIN: U72900PN2020OPC194593
             </td>
             <td width="40%">
-                <img src="{{ public_path('images/cropped-1-1.png') }}" alt="Company Logo" width="180px">
+                @if($invoice->candidate->company_type == 'innovations')
+                    <img src="{{ public_path('images/cropped-1-1.png') }}" alt="Company Logo" width="180px">
+                @else
+                    <img src="{{ public_path('images/adler-insights-logo.jpeg') }}" alt="Insights Logo" width="180px">
+                @endif
+
+                <!-- <img src="{{ public_path('images/cropped-1-1.png') }}" alt="Company Logo" width="180px"> -->
             </td>
         </tr>
     </table>
@@ -225,9 +231,18 @@
                     </textarea>
                 <!-- Please ensure payment is made before the due date to confirm your admission -->
             </td>
+            @if($invoice->candidate->company_type == 'innovations')
             <td width="40%">
-                <img src="{{ public_path('images/qrscanner.jpeg') }}" alt="Company Logo" width="240px">
+                    <img src="{{ public_path('images/qrscanner.jpeg') }}" alt="Company Logo" width="240px">
             </td>
+                @else
+            <td width="40%">
+                    <img src="{{ public_path('images/adler-insights-scanner.png') }}" alt="Insights Logo" width="240px">
+            </td>
+                @endif
+            <!-- <td width="40%">
+                <img src="{{ public_path('images/qrscanner.jpeg') }}" alt="Company Logo" width="240px">
+            </td> -->
         </tr>
     </table>
 

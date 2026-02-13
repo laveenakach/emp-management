@@ -17,6 +17,7 @@ class Candidate extends Model
         'gst_number',
         'bank_account_number',
         'ifsc_code',
-        'address'
+        'address',
+        'company_type'
     ];
 }

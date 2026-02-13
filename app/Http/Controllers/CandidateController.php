@@ -40,6 +40,7 @@ class CandidateController extends Controller
             'bank_account_number' => 'nullable|string|max:50',
             'ifsc_code'           => 'nullable|string|max:20',
             'address'             => 'nullable|string|max:500',
+            'company_type' => 'required|in:innovations,insights',
         ]);
 
         $request['candidate_id'] = 'CDT-' . strtoupper(Str::random(6));
@@ -71,6 +72,7 @@ class CandidateController extends Controller
             'bank_account_number' => 'nullable|string|max:50',
             'ifsc_code'           => 'nullable|string|max:20',
             'address'             => 'nullable|string|max:500',
+            'company_type' => 'required|in:innovations,insights',
         ]);
 
         //  $request['candidate_id'] = 'CDT-' . strtoupper(Str::random(6));

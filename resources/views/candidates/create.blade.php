@@ -52,6 +52,27 @@
                             </div>
 
                             <div class="col-md-6 mb-3">
+                                <label for="company_type" class="form-label fw-semibold">
+                                    Company Type <span class="text-danger">*</span>
+                                </label>
+
+                                <select name="company_type" id="company_type" 
+                                        class="form-select rounded-pill" required>
+
+                                    <option value="innovations"
+                                        {{ old('company_type', $candidate->company_type ?? 'innovations') == 'innovations' ? 'selected' : '' }}>
+                                        Adlertech Innovations
+                                    </option>
+
+                                    <option value="insights"
+                                        {{ old('company_type', $candidate->company_type ?? '') == 'insights' ? 'selected' : '' }}>
+                                        Adlertech Insights
+                                    </option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
                                 <label for="phone" class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
                                 <input type="text" name="phone" id="phone" value="{{ old('phone', $candidate->phone ?? '') }}" class="form-control rounded-pill" required>
                             </div>

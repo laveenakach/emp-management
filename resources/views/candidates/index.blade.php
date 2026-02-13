@@ -80,6 +80,7 @@
                             <th>Phone</th>
                             <th>GST No</th>
                             <th>Bank Account</th>
+                            <th>Company Type</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -93,6 +94,7 @@
                             <td>{{ $candidate->phone }}</td>
                             <td>{{ $candidate->gst_number }}</td>
                             <td>{{ $candidate->bank_account_number }}</td>
+                            <td>{{ $candidate->company_type }}</td>
                         
                             <td class="text-nowrap">
                                 <div class="d-flex gap-2">
